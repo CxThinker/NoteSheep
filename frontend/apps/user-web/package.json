@@ -1,0 +1,17 @@
+{
+  "name": "@notesheep/user-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@notesheep/api-client": "file:../../packages/api-client",
+    "@notesheep/ui": "file:../../packages/ui",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "结构化任务工作流"
+  short_description: "拆解、计划、测试并总结任务"
+  default_prompt: "使用 $structured-task-workflow 拆解任务、列举所需上下文、制定执行计划、运行测试或 CI，并总结结论。"
