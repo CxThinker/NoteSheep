@@ -74,6 +74,8 @@ export type NotebookTree = {
   rootId: string | null;
   nodes: NotebookNode[];
   edges: TreeEdge[];
+  freeNodeIds: string[];
+  deletedNodeIds: string[];
 };
 
 export type NotebookTreeResponse = {

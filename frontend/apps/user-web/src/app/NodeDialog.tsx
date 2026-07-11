@@ -49,7 +49,13 @@ export function NodeDialog({
       onSubmit={onSubmit}
       submitDisabled={isVoiceBusy}
       submitLabel={messages.shell.saveNode}
-      title={nodeCreateTarget?.kind === "sibling" ? messages.shell.createSiblingNodeTitle : messages.shell.createChildNodeTitle}
+      title={
+        nodeCreateTarget?.kind === "sibling"
+          ? messages.shell.createSiblingNodeTitle
+          : nodeCreateTarget?.kind === "child"
+            ? messages.shell.createChildNodeTitle
+            : messages.shell.createNodeTitle
+      }
     >
       <label>
         <span>{messages.shell.nodeTitle}</span>

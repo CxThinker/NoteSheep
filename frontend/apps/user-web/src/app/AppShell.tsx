@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 
 import { AuthUser } from "@notesheep/api-client";
 
+import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
+import { DeleteNodeDialog } from "./DeleteNodeDialog";
 import { NotebookDetailDialog } from "./NotebookDetailDialog";
 import { NotebookDialog } from "./NotebookDialog";
 import { NotebookSidebar } from "./NotebookSidebar";
 import { NodeDetailDialog } from "./NodeDetailDialog";
 import { NodeDialog } from "./NodeDialog";
-import { useNotebookScrollbar } from "./useNotebookScrollbar";
+import { NodeTrayTab } from "./NodeTray";
+import { usePanelScrollbar } from "./usePanelScrollbar";
 import { useWorkspaceController } from "./useWorkspaceController";
 import { useWorkspaceZoom } from "./useWorkspaceZoom";
 import { WorkspaceCanvas } from "./WorkspaceCanvas";
@@ -33,12 +36,18 @@ export function AppShell({
   nodeDetailTarget,
   notebooks,
   onCloseDialog,
+  onConfirmDeleteNodeOnly,
+  onConfirmDeleteSubtree,
   onLogout,
   onOpenNodeDetail,
   onOpenNodeDialog,
   onOpenNotebookDialog,
+  onPermanentDeleteNode,
+  onPlaceTrayNode,
   onSelectNotebook,
+  onSoftDeleteNode,
   onUpdateTree,
+  pendingDeleteTarget,
   selectedNotebookName,
   setNewNodeImages,
   setNewNodeTextContent,
@@ -50,9 +59,31 @@ export function AppShell({
   workspaceDialog,
   workspaceError,
 }: AppShellProps) {
-  const scrollbar = useNotebookScrollbar(notebooks.length);
+  const [activeTrayTab, setActiveTrayTab] = useState<NodeTrayTab>("free");
+  const [selectedTrayNodeId, setSelectedTrayNodeId] = useState<string | null>(null);
+  const [trayDropTarget, setTrayDropTarget] = useState<DropTarget | null>(null);
+  const notebookScroll = usePanelScrollbar(notebooks.length, ".notebook-sidebar-content");
+  const trayScroll = usePanelScrollbar(
+    `${activeTrayTab}:${(tree.freeNodeIds ?? []).length}:${(tree.deletedNodeIds ?? []).length}`,
+    ".node-tray-content",
+  );
   const zoom = useWorkspaceZoom();
   const [isNodeVoiceBusy, setNodeVoiceBusy] = useNodeVoiceBusy(workspaceDialog);
+
+  useEffect(() => {
+    setSelectedTrayNodeId(null);
+    setTrayDropTarget(null);
+  }, [activeTrayTab, selectedNotebookName]);
+
+  useEffect(() => {
+    if (!selectedTrayNodeId) {
+      return;
+    }
+    const trayNodeIds = [...(tree.freeNodeIds ?? []), ...(tree.deletedNodeIds ?? [])];
+    if (!trayNodeIds.includes(selectedTrayNodeId)) {
+      setSelectedTrayNodeId(null);
+    }
+  }, [selectedTrayNodeId, tree.deletedNodeIds, tree.freeNodeIds]);
 
   return (
     <main className="shell-page">
@@ -67,30 +98,35 @@ export function AppShell({
       </header>
       <section className="workspace-frame" aria-label="工作区">
         <NotebookSidebar
+          activeTrayTab={activeTrayTab}
+          isSubmitting={isWorkspaceSubmitting}
+          notebookScroll={notebookScroll}
           notebooks={notebooks}
           onCreateNotebook={onOpenNotebookDialog}
-          onScroll={scrollbar.syncNotebookScrollbar}
+          onOpenNodeDetail={onOpenNodeDetail}
+          onDropTargetPreview={handleDropTargetPreview}
+          onPermanentDeleteNode={onPermanentDeleteNode}
+          onPlaceTrayNode={handlePlaceTrayNode}
           onSelectNotebook={onSelectNotebook}
-          scrollbar={scrollbar.notebookScrollbar}
-          scrollbarHandlers={{
-            onKeyDown: scrollbar.handleNotebookScrollbarKeyDown,
-            onPointerCancel: scrollbar.handleNotebookScrollbarPointerUp,
-            onPointerDown: scrollbar.handleNotebookScrollbarPointerDown,
-            onPointerMove: scrollbar.handleNotebookScrollbarPointerMove,
-            onPointerUp: scrollbar.handleNotebookScrollbarPointerUp,
-            onWheel: scrollbar.handleNotebookScrollbarWheel,
-          }}
+          onSelectTrayNode={setSelectedTrayNodeId}
+          onTrayTabChange={setActiveTrayTab}
           selectedNotebookName={selectedNotebookName}
-          sidebarRef={scrollbar.notebookSidebarRef}
+          selectedTrayNodeId={selectedTrayNodeId}
+          trayScroll={trayScroll}
+          tree={tree}
         />
         <WorkspaceCanvas
           isSubmitting={isWorkspaceSubmitting}
           onOpenNodeDetail={onOpenNodeDetail}
           onOpenNodeDialog={onOpenNodeDialog}
+          onPlaceTrayNode={handlePlaceTrayNode}
+          onSoftDeleteNode={onSoftDeleteNode}
           onUpdateTree={onUpdateTree}
           onZoom={zoom.updateWorkspaceZoom}
           onZoomReset={zoom.resetWorkspaceZoom}
           selectedNotebookName={selectedNotebookName}
+          selectedTrayNodeId={selectedTrayNodeId}
+          trayDropTarget={trayDropTarget}
           tree={tree}
           treeBoardRef={zoom.treeBoardRef}
           workspaceDialogOpen={Boolean(workspaceDialog)}
@@ -133,8 +169,28 @@ export function AppShell({
       {workspaceDialog === "node-detail" && nodeDetailTarget?.kind === "node" ? (
         <NodeDetailDialog detail={nodeDetail} error={workspaceError} isLoading={isNodeDetailLoading} onClose={onCloseDialog} target={nodeDetailTarget} />
       ) : null}
+      {workspaceDialog === "delete-node" && pendingDeleteTarget?.node ? (
+        <DeleteNodeDialog
+          hasChildren={pendingDeleteTarget.hasChildren}
+          isSubmitting={isWorkspaceSubmitting}
+          nodeTitle={pendingDeleteTarget.node.title}
+          onCancel={onCloseDialog}
+          onDeleteNodeOnly={onConfirmDeleteNodeOnly}
+          onDeleteSubtree={onConfirmDeleteSubtree}
+        />
+      ) : null}
     </main>
   );
+
+  async function handlePlaceTrayNode(nodeId: string, target: Parameters<typeof onPlaceTrayNode>[1]) {
+    setTrayDropTarget(null);
+    await onPlaceTrayNode(nodeId, target);
+    setSelectedTrayNodeId((current) => (current === nodeId ? null : current));
+  }
+
+  function handleDropTargetPreview(target: DropTarget | null) {
+    setTrayDropTarget((current) => (sameDropTarget(current, target) ? current : target));
+  }
 }
 
 function useNodeVoiceBusy(workspaceDialog: string | null) {
@@ -145,4 +201,14 @@ function useNodeVoiceBusy(workspaceDialog: string | null) {
     }
   }, [workspaceDialog]);
   return [isNodeVoiceBusy, setNodeVoiceBusy] as const;
+}
+
+function sameDropTarget(left: DropTarget | null, right: DropTarget | null) {
+  if (left === right) {
+    return true;
+  }
+  if (!left || !right || left.kind !== right.kind || left.nodeId !== right.nodeId) {
+    return false;
+  }
+  return left.kind === "child" || (right.kind === "sibling" && left.side === right.side);
 }

@@ -24,7 +24,7 @@ class NotebookFileNodeWriterMixin:
         tree = self._read_tree(notebook_path)
         if any(node.title == node_title or node.text_file == note_path.name for node in tree.nodes):
             raise DuplicateNodeNameError(node_title)
-        effective_parent_id = parent_id if parent_id is not None else tree.root_id or NOTEBOOK_ROOT_ID
+        effective_parent_id = parent_id
         if (
             effective_parent_id is not None
             and effective_parent_id != NOTEBOOK_ROOT_ID
@@ -56,6 +56,7 @@ class NotebookFileNodeWriterMixin:
 
         normalized_tree = self._normalize_tree(tree, require_connected=tree.root_id is not None)
         next_edges = [*normalized_tree.edges]
+        next_free_node_ids = [*normalized_tree.free_node_ids]
         if effective_parent_id is not None:
             side = self._side_for_new_child(normalized_tree, effective_parent_id)
             next_edges.append(
@@ -66,10 +67,14 @@ class NotebookFileNodeWriterMixin:
                     order=self._next_edge_order(normalized_tree, effective_parent_id, side),
                 )
             )
+        else:
+            next_free_node_ids.append(node.id)
         next_tree = NotebookTree(
             root_id=NOTEBOOK_ROOT_ID,
             nodes=[*normalized_tree.nodes, node],
             edges=next_edges,
+            free_node_ids=next_free_node_ids,
+            deleted_node_ids=normalized_tree.deleted_node_ids,
         )
         try:
             self._write_tree(notebook_path, next_tree)

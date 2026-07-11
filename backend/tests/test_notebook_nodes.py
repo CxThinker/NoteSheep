@@ -19,14 +19,8 @@ def test_create_node_writes_markdown_and_updates_tree(tmp_path):
     assert payload["node"]["voiceDir"] == "../voice/节点一"
     assert payload["node"]["imgDir"] == "../img/节点一"
     assert payload["tree"]["rootId"] == "__notesheep_notebook_root__"
-    assert payload["tree"]["edges"] == [
-        {
-            "from": "__notesheep_notebook_root__",
-            "to": payload["node"]["id"],
-            "side": "right",
-            "order": 0,
-        }
-    ]
+    assert payload["tree"]["edges"] == []
+    assert payload["tree"]["freeNodeIds"] == [payload["node"]["id"]]
     assert (notes_root / "笔记本1" / "note" / "节点一.md").read_text("utf-8") == ""
     assert (notes_root / "笔记本1" / "voice" / "节点一").is_dir()
     assert (notes_root / "笔记本1" / "img" / "节点一").is_dir()
@@ -99,7 +93,10 @@ def test_create_node_with_parent_records_edge(tmp_path):
     client, _ = make_client(tmp_path)
     login(client)
     client.post("/api/notebooks", json={"name": "笔记本1"})
-    root_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点一"})
+    root_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "节点一", "parentId": "__notesheep_notebook_root__"},
+    )
     root_id = root_response.json()["node"]["id"]
 
     response = client.post(
@@ -114,11 +111,14 @@ def test_create_node_with_parent_records_edge(tmp_path):
     ]
 
 
-def test_create_node_without_parent_after_root_links_to_notebook_root(tmp_path):
+def test_create_node_without_parent_after_root_records_free_node(tmp_path):
     client, _ = make_client(tmp_path)
     login(client)
     client.post("/api/notebooks", json={"name": "笔记本1"})
-    root_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点一"})
+    root_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "节点一", "parentId": "__notesheep_notebook_root__"},
+    )
     root_id = root_response.json()["node"]["id"]
 
     response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点二"})
@@ -126,20 +126,18 @@ def test_create_node_without_parent_after_root_links_to_notebook_root(tmp_path):
     assert response.status_code == 201
     assert response.json()["tree"]["edges"] == [
         {"from": "__notesheep_notebook_root__", "to": root_id, "side": "right", "order": 0},
-        {
-            "from": "__notesheep_notebook_root__",
-            "to": response.json()["node"]["id"],
-            "side": "right",
-            "order": 1,
-        },
     ]
+    assert response.json()["tree"]["freeNodeIds"] == [response.json()["node"]["id"]]
 
 
 def test_create_node_with_notebook_root_parent_records_top_level_edge(tmp_path):
     client, _ = make_client(tmp_path)
     login(client)
     client.post("/api/notebooks", json={"name": "笔记本1"})
-    first_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点一"})
+    first_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "节点一", "parentId": "__notesheep_notebook_root__"},
+    )
     first_id = first_response.json()["node"]["id"]
 
     response = client.post(

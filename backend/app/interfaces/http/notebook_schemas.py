@@ -32,6 +32,8 @@ class TreeRequest(BaseModel):
     rootId: str | None = None
     nodes: list[TreeNodeRequest]
     edges: list[TreeEdgeRequest]
+    freeNodeIds: list[str] = []
+    deletedNodeIds: list[str] = []
 
 
 class ReplaceTreeRequest(BaseModel):

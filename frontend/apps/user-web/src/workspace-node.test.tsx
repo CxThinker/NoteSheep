@@ -36,7 +36,7 @@ describe("Workspace node creation", () => {
     expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
   });
 
-  it("uses the floating pen button to create a node inside the selected notebook", async () => {
+  it("uses the floating pen button to create a free node", async () => {
     const api = makeApi({
       getNotebookTree: vi.fn().mockResolvedValue({ tree: emptyTree })
     });
@@ -48,14 +48,13 @@ describe("Workspace node creation", () => {
 
     await screen.findByRole("button", { name: "笔记本1" });
     fireEvent.click(screen.getByRole("button", { name: "创建节点" }));
-    expect(screen.getByRole("dialog", { name: "添加子节点" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "创建新节点" })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("节点名称"), { target: { value: "节点一" } });
     fireEvent.click(screen.getByRole("button", { name: "保存节点" }));
 
     await waitFor(() => {
       expect(api.createNode).toHaveBeenCalledWith("笔记本1", {
         title: "节点一",
-        parentId: "__notesheep_notebook_root__"
       });
     });
     expect(await screen.findByText("节点一")).toBeInTheDocument();

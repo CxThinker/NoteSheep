@@ -3,6 +3,7 @@ import { PointerEvent } from "react";
 import { NotebookNode } from "@notesheep/api-client";
 
 import { messages } from "./messages";
+import { MindMapDropZone } from "./MindMapDropZone";
 import { DropTarget, MindMapPointerDown, NodeCreateTarget } from "./mindMapCanvasTypes";
 import { MindMapNodeLayout } from "./mindMapLayout";
 import { DropSide } from "./mindMapTree";
@@ -14,10 +15,13 @@ type MindMapNodeProps = {
   layout: MindMapNodeLayout;
   node: NotebookNode;
   onCreateNodeAt: (target: NodeCreateTarget) => void;
+  onDeleteNode: (nodeId: string) => void;
+  onDropTrayNode: (nodeId: string, target: DropTarget) => void;
   onPointerCancel: (event: PointerEvent<HTMLElement>) => void;
   onPointerDown: MindMapPointerDown;
   onPointerMove: (event: PointerEvent<HTMLElement>) => void;
   onPointerUp: (event: PointerEvent<HTMLElement>) => void;
+  selectedTrayNodeId: string | null;
 };
 
 export function MindMapNode({
@@ -27,10 +31,13 @@ export function MindMapNode({
   layout,
   node,
   onCreateNodeAt,
+  onDeleteNode,
+  onDropTrayNode,
   onPointerCancel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  selectedTrayNodeId,
 }: MindMapNodeProps) {
   return (
     <article
@@ -49,32 +56,53 @@ export function MindMapNode({
       {layout.isRoot ? <p className="mind-map-root-kicker">{messages.shell.currentNotebook}</p> : null}
       <NodeTitle layout={layout} node={node} />
       {layout.isRoot ? null : <NodeResources node={node} />}
-      <DropZone
+      {layout.isRoot ? null : (
+        <button
+          aria-label={`${messages.shell.deleteNode} ${node.title}`}
+          className="mind-map-delete-node"
+          disabled={disabled}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDeleteNode(node.id);
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+          type="button"
+        >
+          ×
+        </button>
+      )}
+      <MindMapDropZone
         active={isActiveDrop(activeDrop, node.id, "child")}
         disabled={disabled}
         kind="child"
         nodeId={node.id}
         nodeTitle={node.title}
         onCreateNodeAt={onCreateNodeAt}
+        onDropTrayNode={onDropTrayNode}
+        selectedTrayNodeId={selectedTrayNodeId}
       />
       {layout.isRoot ? null : (
         <>
-          <DropZone
+          <MindMapDropZone
             active={isActiveDrop(activeDrop, node.id, "sibling", "left")}
             disabled={disabled}
             kind="sibling"
             nodeId={node.id}
             nodeTitle={node.title}
             onCreateNodeAt={onCreateNodeAt}
+            onDropTrayNode={onDropTrayNode}
+            selectedTrayNodeId={selectedTrayNodeId}
             side="left"
           />
-          <DropZone
+          <MindMapDropZone
             active={isActiveDrop(activeDrop, node.id, "sibling", "right")}
             disabled={disabled}
             kind="sibling"
             nodeId={node.id}
             nodeTitle={node.title}
             onCreateNodeAt={onCreateNodeAt}
+            onDropTrayNode={onDropTrayNode}
+            selectedTrayNodeId={selectedTrayNodeId}
             side="right"
           />
         </>
@@ -105,52 +133,6 @@ function NodeResources({ node }: { node: NotebookNode }) {
         {node.voiceDir} · {node.imgDir}
       </p>
     </>
-  );
-}
-
-function DropZone({
-  active,
-  disabled,
-  kind,
-  nodeId,
-  nodeTitle,
-  onCreateNodeAt,
-  side,
-}: {
-  active: boolean;
-  disabled: boolean;
-  kind: "child" | "sibling";
-  nodeId: string;
-  nodeTitle: string;
-  onCreateNodeAt: (target: NodeCreateTarget) => void;
-  side?: DropSide;
-}) {
-  const label =
-    kind === "child"
-      ? `给 ${nodeTitle} 添加子节点`
-      : `在 ${nodeTitle} ${side === "left" ? "左侧" : "右侧"}添加兄弟节点`;
-
-  return (
-    <button
-      aria-label={label}
-      className="mind-map-drop-zone"
-      data-active={active}
-      data-drop-kind={kind}
-      data-drop-node={nodeId}
-      data-drop-side={side}
-      data-position={kind === "child" ? "bottom" : side}
-      disabled={disabled}
-      onClick={(event) => {
-        event.stopPropagation();
-        if (kind === "child") {
-          onCreateNodeAt({ kind, parentId: nodeId });
-        } else if (side) {
-          onCreateNodeAt({ kind, side, targetId: nodeId });
-        }
-      }}
-      onPointerDown={(event) => event.stopPropagation()}
-      type="button"
-    />
   );
 }
 

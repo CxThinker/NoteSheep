@@ -188,6 +188,27 @@ async def create_node(
     return {"node": node_payload(node), "tree": tree_payload(tree)}
 
 
+@router.delete("/{name}/nodes/{node_id}")
+def delete_node(
+    name: str,
+    node_id: str,
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service),
+    notebook_service: NotebookService = Depends(get_notebook_service),
+    config: AppConfig = Depends(get_config),
+):
+    current_user_or_401(request, auth_service, config)
+    try:
+        tree = notebook_service.delete_node(name, node_id)
+    except NodeNotFoundError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Node not found.") from error
+    except InvalidTreeStructureError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Notebook tree is invalid.") from error
+    except (InvalidNotebookNameError, NotebookNotFoundError) as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notebook not found.") from error
+    return {"tree": tree_payload(tree)}
+
+
 def current_user_or_401(request: Request, auth_service: AuthService, config: AppConfig) -> User:
     user = auth_service.current_user(request.cookies.get(config.session_cookie_name))
     if user is None:

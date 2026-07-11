@@ -2,7 +2,6 @@ import { AuthApi, NotebookNodeDetail } from "@notesheep/api-client";
 
 import { NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
 import { messages } from "../messages";
-import { NOTEBOOK_ROOT_ID } from "../mindMapTree";
 import { WorkspaceDialog } from "./types";
 
 type DialogActionContext = {
@@ -18,6 +17,7 @@ type DialogActionContext = {
   setNodeDetail: (value: NotebookNodeDetail | null) => void;
   setNodeDetailLoading: (value: boolean) => void;
   setNodeDetailTarget: (value: NodeDetailTarget | null) => void;
+  clearPendingDelete: () => void;
   setSelectedNotebookName: (value: string) => void;
   setWorkspaceDialog: (value: WorkspaceDialog) => void;
   setWorkspaceError: (value: string) => void;
@@ -27,8 +27,7 @@ export function createWorkspaceDialogActions(context: DialogActionContext) {
   return {
     onCloseDialog: () => closeDialog(context),
     onOpenNodeDetail: (target: NodeDetailTarget) => openNodeDetail(context, target),
-    onOpenNodeDialog: (target: NodeCreateTarget = { kind: "child", parentId: NOTEBOOK_ROOT_ID }) =>
-      openNodeDialog(context, target),
+    onOpenNodeDialog: (target?: NodeCreateTarget) => openNodeDialog(context, target ?? null),
     onOpenNotebookDialog: () => openNotebookDialog(context),
     onSelectNotebook: (name: string) => selectNotebook(context, name),
   };
@@ -38,6 +37,7 @@ function closeDialog(context: DialogActionContext) {
   context.setWorkspaceDialog(null);
   context.setWorkspaceError("");
   context.setNodeDetailTarget(null);
+  context.clearPendingDelete();
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.setNewNodeTextContent("");
@@ -46,13 +46,14 @@ function closeDialog(context: DialogActionContext) {
   context.nodeDetailRequestRef.current += 1;
 }
 
-function openNodeDialog(context: DialogActionContext, target: NodeCreateTarget) {
+function openNodeDialog(context: DialogActionContext, target: NodeCreateTarget | null) {
   context.setNewNodeTitle("");
   context.setNewNodeTextContent("");
   context.setNewNodeImages([]);
   context.setNewNodeVoices([]);
   context.setNodeCreateTarget(target);
   context.setNodeDetailTarget(null);
+  context.clearPendingDelete();
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -63,6 +64,7 @@ function openNodeDialog(context: DialogActionContext, target: NodeCreateTarget) 
 function openNotebookDialog(context: DialogActionContext) {
   context.setNewNotebookName("");
   context.setNodeDetailTarget(null);
+  context.clearPendingDelete();
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -74,6 +76,7 @@ function selectNotebook(context: DialogActionContext, name: string) {
   context.setSelectedNotebookName(name);
   context.setNodeCreateTarget(null);
   context.setNodeDetailTarget(null);
+  context.clearPendingDelete();
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -82,6 +85,7 @@ function selectNotebook(context: DialogActionContext, name: string) {
 
 function openNodeDetail(context: DialogActionContext, target: NodeDetailTarget) {
   context.setNodeDetailTarget(target);
+  context.clearPendingDelete();
   context.setWorkspaceDialog(target.kind === "notebook" ? "notebook-detail" : "node-detail");
   context.setWorkspaceError("");
   context.setNodeDetail(null);

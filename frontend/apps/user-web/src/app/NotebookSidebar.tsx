@@ -1,85 +1,102 @@
-import { NotebookEntry } from "@notesheep/api-client";
+import { NotebookEntry, NotebookTree } from "@notesheep/api-client";
 
+import { NodeDetailTarget } from "../MindMapCanvas";
+import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
-import { ScrollbarState } from "./scrollbar";
+import { NodeTray, NodeTrayTab } from "./NodeTray";
+import { SidebarScrollbar } from "./SidebarScrollbar";
+import { PanelScrollbar } from "./usePanelScrollbar";
 
 type NotebookSidebarProps = {
+  activeTrayTab: NodeTrayTab;
+  isSubmitting: boolean;
+  notebookScroll: PanelScrollbar;
   notebooks: NotebookEntry[];
   onCreateNotebook: () => void;
+  onOpenNodeDetail: (target: NodeDetailTarget) => void;
+  onDropTargetPreview: (target: DropTarget | null) => void;
+  onPermanentDeleteNode: (nodeId: string) => void;
+  onPlaceTrayNode: (nodeId: string, target: DropTarget) => void;
   onSelectNotebook: (name: string) => void;
-  onScroll: () => void;
-  scrollbar: ScrollbarState;
-  scrollbarHandlers: {
-    onKeyDown: React.KeyboardEventHandler<HTMLDivElement>;
-    onPointerCancel: React.PointerEventHandler<HTMLDivElement>;
-    onPointerDown: React.PointerEventHandler<HTMLDivElement>;
-    onPointerMove: React.PointerEventHandler<HTMLDivElement>;
-    onPointerUp: React.PointerEventHandler<HTMLDivElement>;
-    onWheel: React.WheelEventHandler<HTMLDivElement>;
-  };
+  onSelectTrayNode: (nodeId: string | null) => void;
+  onTrayTabChange: (tab: NodeTrayTab) => void;
   selectedNotebookName: string;
-  sidebarRef: React.RefObject<HTMLElement | null>;
+  selectedTrayNodeId: string | null;
+  trayScroll: PanelScrollbar;
+  tree: NotebookTree;
 };
 
 export function NotebookSidebar({
+  activeTrayTab,
+  isSubmitting,
+  notebookScroll,
+  notebooks,
+  onCreateNotebook,
+  onOpenNodeDetail,
+  onDropTargetPreview,
+  onPermanentDeleteNode,
+  onPlaceTrayNode,
+  onSelectNotebook,
+  onSelectTrayNode,
+  onTrayTabChange,
+  selectedNotebookName,
+  selectedTrayNodeId,
+  trayScroll,
+  tree,
+}: NotebookSidebarProps) {
+  return (
+    <div className="notebook-sidebar-shell">
+      <div className="sidebar-scroll-shell">
+        <SidebarScrollbar controls={notebookScroll} label="笔记本滚动条" targetId="notebook-sidebar-scroll" />
+        <aside aria-label="笔记本侧栏" className="notebook-sidebar" id="notebook-sidebar-scroll" onScroll={notebookScroll.syncScrollbar} ref={notebookScroll.panelRef}>
+          <NotebookList notebooks={notebooks} onCreateNotebook={onCreateNotebook} onSelectNotebook={onSelectNotebook} selectedNotebookName={selectedNotebookName} />
+        </aside>
+      </div>
+      <div className="sidebar-scroll-shell">
+        <SidebarScrollbar controls={trayScroll} label="节点托盘滚动条" targetId="node-tray-scroll" />
+        <NodeTray
+          activeTab={activeTrayTab}
+          disabled={isSubmitting || !selectedNotebookName}
+          onOpenNodeDetail={onOpenNodeDetail}
+          onDropTargetPreview={onDropTargetPreview}
+          onPermanentDelete={onPermanentDeleteNode}
+          onPlaceNode={onPlaceTrayNode}
+          onScroll={trayScroll.syncScrollbar}
+          onSelectNode={onSelectTrayNode}
+          onTabChange={onTrayTabChange}
+          selectedNodeId={selectedTrayNodeId}
+          trayRef={trayScroll.panelRef}
+          tree={tree}
+        />
+      </div>
+    </div>
+  );
+}
+
+function NotebookList({
   notebooks,
   onCreateNotebook,
   onSelectNotebook,
-  onScroll,
-  scrollbar,
-  scrollbarHandlers,
   selectedNotebookName,
-  sidebarRef,
-}: NotebookSidebarProps) {
+}: {
+  notebooks: NotebookEntry[];
+  onCreateNotebook: () => void;
+  onSelectNotebook: (name: string) => void;
+  selectedNotebookName: string;
+}) {
   return (
-    <div className="notebook-scroll-shell">
-      <div
-        aria-controls="notebook-sidebar-scroll"
-        aria-label="笔记本滚动条"
-        aria-orientation="vertical"
-        aria-valuemax={scrollbar.valueMax}
-        aria-valuemin={0}
-        aria-valuenow={scrollbar.valueNow}
-        className="workspace-scrollbar"
-        role="scrollbar"
-        tabIndex={0}
-        {...scrollbarHandlers}
-      >
-        <span
-          className="workspace-scrollbar-thumb"
-          style={{
-            height: scrollbar.thumbHeight ? `${scrollbar.thumbHeight}px` : "100%",
-            transform: `translateY(${scrollbar.thumbTop}px)`,
-          }}
-        />
-      </div>
-      <aside
-        aria-label="笔记本侧栏"
-        className="notebook-sidebar"
-        id="notebook-sidebar-scroll"
-        onScroll={onScroll}
-        ref={sidebarRef}
-      >
-        <div className="notebook-sidebar-content">
-          <button className="create-notebook-button" onClick={onCreateNotebook} type="button">
-            {messages.shell.openCreateNotebook}
+    <div className="notebook-sidebar-content">
+      <button className="create-notebook-button" onClick={onCreateNotebook} type="button">
+        {messages.shell.openCreateNotebook}
+      </button>
+      <div aria-label="笔记本列表" className="notebook-list">
+        {notebooks.length === 0 ? <p className="empty-state">{messages.shell.emptyNotebooks}</p> : null}
+        {notebooks.map((notebook) => (
+          <button className="notebook-item" data-active={selectedNotebookName === notebook.name} key={notebook.name} onClick={() => onSelectNotebook(notebook.name)} type="button">
+            {notebook.name}
           </button>
-          <div aria-label="笔记本列表" className="notebook-list">
-            {notebooks.length === 0 ? <p className="empty-state">{messages.shell.emptyNotebooks}</p> : null}
-            {notebooks.map((notebook) => (
-              <button
-                className="notebook-item"
-                data-active={selectedNotebookName === notebook.name}
-                key={notebook.name}
-                onClick={() => onSelectNotebook(notebook.name)}
-                type="button"
-              >
-                {notebook.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </aside>
+        ))}
+      </div>
     </div>
   );
 }

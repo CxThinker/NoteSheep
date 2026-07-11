@@ -19,11 +19,13 @@ from app.domain.notebook import (
 from app.infrastructure.notebook_file_assets import NotebookFileAssetMixin
 from app.infrastructure.notebook_file_constants import IMAGE_EXTENSIONS, VOICE_EXTENSIONS
 from app.infrastructure.notebook_file_naming import NotebookFileNamingMixin
+from app.infrastructure.notebook_file_node_delete import NotebookFileNodeDeleteMixin
 from app.infrastructure.notebook_file_node_writer import NotebookFileNodeWriterMixin
 from app.infrastructure.notebook_file_tree import NotebookFileTreeMixin
 
 
 class FileNotebookRepository(
+    NotebookFileNodeDeleteMixin,
     NotebookFileNodeWriterMixin,
     NotebookFileNamingMixin,
     NotebookFileTreeMixin,
@@ -140,6 +142,8 @@ class FileNotebookRepository(
             root_id=current_tree.root_id,
             nodes=current_tree.nodes,
             edges=tree.edges,
+            free_node_ids=tree.free_node_ids,
+            deleted_node_ids=tree.deleted_node_ids,
         )
         normalized_tree = self._normalize_tree(next_tree, require_connected=True)
         self._write_tree(notebook_path, normalized_tree)

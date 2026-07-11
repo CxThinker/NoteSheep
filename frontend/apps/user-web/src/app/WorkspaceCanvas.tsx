@@ -3,18 +3,22 @@ import { RefObject } from "react";
 import { NotebookTree } from "@notesheep/api-client";
 
 import { MindMapCanvas, NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
+import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
-import { NOTEBOOK_ROOT_ID } from "../mindMapTree";
 import { formatZoom, WORKSPACE_ZOOM_STEP } from "./useWorkspaceZoom";
 
 type WorkspaceCanvasProps = {
   isSubmitting: boolean;
   onOpenNodeDialog: (target?: NodeCreateTarget) => void;
   onOpenNodeDetail: (target: NodeDetailTarget) => void;
+  onPlaceTrayNode: (nodeId: string, target: DropTarget) => void;
+  onSoftDeleteNode: (nodeId: string) => void;
   onUpdateTree: (tree: NotebookTree) => Promise<boolean>;
   onZoom: (delta: number) => void;
   onZoomReset: () => void;
   selectedNotebookName: string;
+  selectedTrayNodeId: string | null;
+  trayDropTarget: DropTarget | null;
   tree: NotebookTree;
   treeBoardRef: RefObject<HTMLDivElement | null>;
   workspaceDialogOpen: boolean;
@@ -26,10 +30,14 @@ export function WorkspaceCanvas({
   isSubmitting,
   onOpenNodeDialog,
   onOpenNodeDetail,
+  onPlaceTrayNode,
+  onSoftDeleteNode,
   onUpdateTree,
   onZoom,
   onZoomReset,
   selectedNotebookName,
+  selectedTrayNodeId,
+  trayDropTarget,
   tree,
   treeBoardRef,
   workspaceDialogOpen,
@@ -58,9 +66,13 @@ export function WorkspaceCanvas({
             disabled={isSubmitting}
             error={workspaceDialogOpen ? "" : workspaceError}
             onCreateNodeAt={onOpenNodeDialog}
+            onDeleteNode={onSoftDeleteNode}
             onOpenNodeDetail={onOpenNodeDetail}
+            onPlaceTrayNode={onPlaceTrayNode}
             onTreeChange={onUpdateTree}
             rootTitle={selectedNotebookName}
+            selectedTrayNodeId={selectedTrayNodeId}
+            trayDropTarget={trayDropTarget}
             tree={tree}
             zoom={workspaceZoom}
           />
@@ -70,7 +82,7 @@ export function WorkspaceCanvas({
         aria-label={messages.shell.createNode}
         className="node-fab"
         disabled={!selectedNotebookName}
-        onClick={() => onOpenNodeDialog({ kind: "child", parentId: NOTEBOOK_ROOT_ID })}
+        onClick={() => onOpenNodeDialog()}
         type="button"
       >
         ✎

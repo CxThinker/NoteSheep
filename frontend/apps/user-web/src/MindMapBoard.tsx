@@ -11,10 +11,13 @@ type MindMapBoardProps = {
   layout: MindMapLayout;
   nodeById: Map<string, NotebookNode>;
   onCreateNodeAt: (target: NodeCreateTarget) => void;
+  onDeleteNode: (nodeId: string) => void;
+  onDropTrayNode: (nodeId: string, target: DropTarget) => void;
   onPointerCancel: React.PointerEventHandler<HTMLElement>;
   onPointerDown: MindMapPointerDown;
   onPointerMove: React.PointerEventHandler<HTMLElement>;
   onPointerUp: React.PointerEventHandler<HTMLElement>;
+  selectedTrayNodeId: string | null;
   zoom: number;
 };
 
@@ -25,10 +28,13 @@ export function MindMapBoard({
   layout,
   nodeById,
   onCreateNodeAt,
+  onDeleteNode,
+  onDropTrayNode,
   onPointerCancel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  selectedTrayNodeId,
   zoom,
 }: MindMapBoardProps) {
   return (
@@ -55,10 +61,13 @@ export function MindMapBoard({
             layout={nodeLayout}
             node={node}
             onCreateNodeAt={onCreateNodeAt}
+            onDeleteNode={onDeleteNode}
+            onDropTrayNode={onDropTrayNode}
             onPointerCancel={onPointerCancel}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
+            selectedTrayNodeId={selectedTrayNodeId}
           />
         );
       })}

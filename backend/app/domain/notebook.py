@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 REQUIRED_NOTEBOOK_DIRECTORIES = ("note", "voice", "img")
@@ -66,6 +66,8 @@ class NotebookTree:
     root_id: str | None
     nodes: list[NotebookNode]
     edges: list[TreeEdge]
+    free_node_ids: list[str] = field(default_factory=list)
+    deleted_node_ids: list[str] = field(default_factory=list)
 
 
 class InvalidNotebookNameError(ValueError):

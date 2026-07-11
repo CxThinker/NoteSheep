@@ -23,12 +23,14 @@ describe("Workspace shell", () => {
     expect(api.getNotebookTree).toHaveBeenCalledWith("笔记本1");
     expect(screen.queryByLabelText("活动条")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "笔记本页" })).not.toBeInTheDocument();
-    expect(document.querySelector(".notebook-scroll-shell")).toBeInTheDocument();
+    expect(document.querySelector(".notebook-sidebar-shell")).toBeInTheDocument();
     expect(screen.getByRole("scrollbar", { name: "笔记本滚动条" })).toHaveAttribute(
       "aria-controls",
       "notebook-sidebar-scroll"
     );
     expect(screen.getByLabelText("笔记本列表")).toBeInTheDocument();
+    expect(screen.getByRole("scrollbar", { name: "节点托盘滚动条" })).toHaveAttribute("aria-controls", "node-tray-scroll");
+    expect(screen.getByRole("tab", { name: "自由节点" })).toBeInTheDocument();
     expect(screen.getByLabelText("笔记本树状图")).toBeInTheDocument();
     expect(screen.getByLabelText("工作区")).toHaveClass("workspace-frame");
   });

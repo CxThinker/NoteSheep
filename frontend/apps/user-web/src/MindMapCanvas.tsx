@@ -21,9 +21,13 @@ type MindMapCanvasProps = {
   disabled: boolean;
   error: string;
   onCreateNodeAt: (target: NodeCreateTarget) => void;
+  onDeleteNode: (nodeId: string) => void;
   onOpenNodeDetail: (target: NodeDetailTarget) => void;
+  onPlaceTrayNode: (nodeId: string, target: DropTarget) => void;
   onTreeChange: (tree: NotebookTree) => Promise<boolean>;
   rootTitle: string;
+  selectedTrayNodeId: string | null;
+  trayDropTarget: DropTarget | null;
   tree: NotebookTree;
   zoom: number;
 };
@@ -34,9 +38,13 @@ export function MindMapCanvas({
   disabled,
   error,
   onCreateNodeAt,
+  onDeleteNode,
   onOpenNodeDetail,
+  onPlaceTrayNode,
   onTreeChange,
   rootTitle,
+  selectedTrayNodeId,
+  trayDropTarget,
   tree,
   zoom,
 }: MindMapCanvasProps) {
@@ -48,6 +56,7 @@ export function MindMapCanvas({
   const [localError, setLocalError] = useState("");
   const pendingPressRef = useRef<PendingPress | null>(null);
   const draggedNode = dragState ? nodeById.get(dragState.nodeId) : null;
+  const activeDropTarget = dragState ? dropTarget : trayDropTarget;
 
   function handlePointerDown(event: PointerEvent<HTMLElement>, node: NotebookNode, nodeLayout: MindMapNodeLayout) {
     if (disabled) {
@@ -135,6 +144,10 @@ export function MindMapCanvas({
     }
   }
 
+  async function handleDropTrayNode(nodeId: string, target: DropTarget) {
+    await onPlaceTrayNode(nodeId, target);
+  }
+
   function handlePointerCancel(event: PointerEvent<HTMLElement>) {
     finishPendingPress(event.pointerId);
     event.currentTarget.releasePointerCapture(event.pointerId);
@@ -176,14 +189,17 @@ export function MindMapCanvas({
       <MindMapBoard
         disabled={disabled}
         dragState={dragState}
-        dropTarget={dropTarget}
+        dropTarget={activeDropTarget}
         layout={layout}
         nodeById={nodeById}
         onCreateNodeAt={onCreateNodeAt}
+        onDeleteNode={onDeleteNode}
+        onDropTrayNode={handleDropTrayNode}
         onPointerCancel={handlePointerCancel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        selectedTrayNodeId={selectedTrayNodeId}
         zoom={zoom}
       />
       {dragState && draggedNode ? <div className="mind-map-drag-ghost" style={{ left: dragState.x, top: dragState.y }}>{draggedNode.title}</div> : null}
