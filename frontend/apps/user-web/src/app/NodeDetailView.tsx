@@ -86,10 +86,9 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
           notePath={notePath}
         />
         {isLoading ? <p className="node-detail-state">{messages.shell.nodeDetailLoading}</p> : null}
-        {error ? <p className="form-error">{error}</p> : null}
         {!isLoading ? (
           <div className="node-detail-body">
-            <NodeDetailText detail={detail} isTextPanelOpen={isTextPanelOpen} />
+            <NodeDetailText detail={detail} error={error} isTextPanelOpen={isTextPanelOpen} />
             <NodeDetailImages detail={detail} hasImages={hasImages} isImagePanelOpen={isImagePanelOpen} />
             <NodeDetailToggles
               areBothPanelsOpen={areBothPanelsOpen}
@@ -136,14 +135,17 @@ function NodeDetailPaths({
 
 function NodeDetailText({
   detail,
+  error,
   isTextPanelOpen,
 }: {
   detail: NotebookNodeDetail | null;
+  error: string;
   isTextPanelOpen: boolean;
 }) {
   return (
     <section aria-hidden={!isTextPanelOpen} aria-label={messages.shell.textContent} className="node-detail-text" data-panel-open={isTextPanelOpen}>
       <h4>{messages.shell.textContent}</h4>
+      {error ? <p className="form-error">{error}</p> : null}
       <pre>{detail?.textContent.trim() ? detail.textContent : messages.shell.emptyTextContent}</pre>
     </section>
   );
