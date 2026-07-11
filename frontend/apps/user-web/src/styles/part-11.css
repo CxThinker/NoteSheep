@@ -1,0 +1,113 @@
+﻿
+.node-detail-paths div[data-panel-open="false"] {
+  visibility: hidden;
+  max-height: 0;
+  min-height: 0;
+  padding: 0;
+  opacity: 0;
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    max-height var(--node-detail-animation-duration) ease,
+    min-height var(--node-detail-animation-duration) ease,
+    padding var(--node-detail-animation-duration) ease,
+    visibility 0s linear var(--node-detail-animation-duration);
+}
+
+.node-detail-paths span,
+.audio-path span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.node-detail-paths strong,
+.audio-path strong {
+  min-width: 0;
+  color: var(--secondary);
+  font-size: 0.95rem;
+}
+
+.node-detail-paths strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-path strong {
+  overflow-wrap: anywhere;
+}
+
+.node-detail-state {
+  margin: 0;
+  padding: 24px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.node-detail-grid-shell > .form-error {
+  padding: 20px 24px;
+}
+
+.node-detail-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--node-detail-columns);
+  height: var(--node-detail-body-height);
+  min-height: var(--node-detail-body-height);
+  border-bottom: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
+  transition: grid-template-columns var(--node-detail-animation-duration) ease;
+}
+
+.node-detail-text,
+.node-detail-images {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 42px 42px;
+  opacity: 1;
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    padding var(--node-detail-animation-duration) ease,
+    visibility 0s linear 0s;
+}
+
+.node-detail-layout[data-text-open="true"][data-images-open="true"] .node-detail-text + .node-detail-images {
+  border-left: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.node-detail-text[data-panel-open="false"],
+.node-detail-images[data-panel-open="false"] {
+  visibility: hidden;
+  overflow: hidden;
+  padding-right: 0;
+  padding-left: 0;
+  opacity: 0;
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    padding var(--node-detail-animation-duration) ease,
+    visibility 0s linear var(--node-detail-animation-duration);
+}
+
+.node-detail-text h4,
+.node-detail-images h4 {
+  margin: 0 0 28px;
+  color: var(--accent-strong);
+  font-size: clamp(1.55rem, 3.8vw, 2.35rem);
+  letter-spacing: 0;
+}
+
+.node-detail-text pre {
+  min-height: 230px;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: inherit;
+  line-height: 1.75;
+}
+
+.node-detail-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}

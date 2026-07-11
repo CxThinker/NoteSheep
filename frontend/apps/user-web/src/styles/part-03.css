@@ -1,0 +1,118 @@
+﻿
+.shell-header {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: 86px;
+  border-bottom: 2px solid color-mix(in srgb, var(--line) 55%, transparent);
+  padding: 0 24px 0 18px;
+}
+
+.shell-header .text-action {
+  width: auto;
+  margin: 0;
+  padding: 0 16px;
+}
+
+.shell-brand {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: stretch;
+  min-height: 86px;
+  border-left: 2px solid color-mix(in srgb, var(--line) 55%, transparent);
+}
+
+.shell-brand h1,
+.shell-brand span {
+  display: grid;
+  align-items: center;
+  margin: 0;
+  border-right: 2px solid color-mix(in srgb, var(--line) 55%, transparent);
+  padding: 0 18px;
+}
+
+.shell-brand h1 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.shell-brand span {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.workspace-frame {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  grid-template-columns: minmax(260px, 1fr) 4fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+.notebook-scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: 18px minmax(0, 1fr);
+  border-right: 2px solid color-mix(in srgb, var(--line) 34%, transparent);
+}
+
+.workspace-scrollbar {
+  position: relative;
+  display: block;
+  border-right: 2px solid color-mix(in srgb, var(--line) 42%, transparent);
+  min-height: 100%;
+  background: color-mix(in srgb, var(--line) 86%, #050607);
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.workspace-scrollbar-thumb {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  width: 6px;
+  min-height: 6px;
+  border: 1px solid color-mix(in srgb, var(--panel) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 88%, var(--panel));
+}
+
+.workspace-scrollbar:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.notebook-sidebar {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.notebook-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.notebook-sidebar-content {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 100%;
+  padding: 18px 14px;
+}
+
+.notebook-list {
+  display: grid;
+  gap: 14px;
+}
+
+.notebook-item {
+  width: min(100%, 230px);
+  justify-content: flex-start;
+  min-height: 58px;
+  border-radius: 999px;
+  padding: 0 18px;
+  background: var(--panel);
+  text-align: center;
+}

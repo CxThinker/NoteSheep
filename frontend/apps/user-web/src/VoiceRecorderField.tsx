@@ -1,28 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { messages } from "./messages";
+import { VoiceRecorderView } from "./VoiceRecorderView";
+import { releasePreviewUrlRef, releaseRecordingResources } from "./voiceRecorderCleanup";
+import {
+  hasRecorderSupport,
+  MICROPHONE_REQUEST_TIMEOUT_MS,
+  preferredRecordingMimeType,
+  recordedVoiceFilename,
+  RecordingStatus,
+  recordingStatusLabel,
+  stopStream,
+} from "./voiceRecorderHelpers";
+type VoiceRecorderFieldProps = { files: File[]; onBusyChange: (busy: boolean) => void; onFilesChange: (files: File[]) => void };
 
-type RecordingStatus = "idle" | "requesting" | "recording" | "processing" | "recorded";
-
-type VoiceRecorderFieldProps = {
-  files: File[];
-  onBusyChange: (busy: boolean) => void;
-  onFilesChange: (files: File[]) => void;
-};
-
-const RECORDING_MIME_TYPES = [
-  "audio/webm;codecs=opus",
-  "audio/webm",
-  "audio/ogg;codecs=opus",
-  "audio/mp4",
-];
-const MICROPHONE_REQUEST_TIMEOUT_MS = 10_000;
-
-export function VoiceRecorderField({
-  files,
-  onBusyChange,
-  onFilesChange,
-}: VoiceRecorderFieldProps) {
+export function VoiceRecorderField({ files, onBusyChange, onFilesChange }: VoiceRecorderFieldProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
@@ -67,6 +58,25 @@ export function VoiceRecorderField({
       return;
     }
 
+    const requestId = beginMicrophoneRequest();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      clearRequestTimeout();
+      if (disposedRef.current || requestIdRef.current !== requestId) {
+        stopStream(stream);
+        return;
+      }
+      startRecorder(stream);
+    } catch (caught) {
+      clearRequestTimeout();
+      const permissionError = caught instanceof DOMException && caught.name === "NotAllowedError";
+      setError(permissionError ? messages.shell.microphonePermissionDenied : messages.shell.voiceRecordingFailed);
+      setStatus("idle");
+      releaseRecording({ finalize: false });
+    }
+  }
+
+  function beginMicrophoneRequest() {
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
     releaseRecording({ finalize: false });
@@ -82,44 +92,32 @@ export function VoiceRecorderField({
       setError(messages.shell.microphoneRequestTimedOut);
       setStatus("idle");
     }, MICROPHONE_REQUEST_TIMEOUT_MS);
+    return requestId;
+  }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      clearRequestTimeout();
-      if (disposedRef.current || requestIdRef.current !== requestId) {
-        stopStream(stream);
-        return;
+  function startRecorder(stream: MediaStream) {
+    const mimeType = preferredRecordingMimeType();
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    chunksRef.current = [];
+    recorderRef.current = recorder;
+    streamRef.current = stream;
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunksRef.current.push(event.data);
       }
-
-      const mimeType = preferredRecordingMimeType();
-      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-      chunksRef.current = [];
-      recorderRef.current = recorder;
-      streamRef.current = stream;
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
-        }
-      };
-      recorder.onstop = () => finishRecording(mimeType);
-      recorder.onerror = () => {
-        setError(messages.shell.voiceRecordingFailed);
-        setStatus("idle");
-        releaseRecording({ finalize: false });
-      };
-      recorder.start();
-      startedAtRef.current = Date.now();
-      setStatus("recording");
-      timerRef.current = window.setInterval(() => {
-        setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
-      }, 250);
-    } catch (caught) {
-      clearRequestTimeout();
-      const permissionError = caught instanceof DOMException && caught.name === "NotAllowedError";
-      setError(permissionError ? messages.shell.microphonePermissionDenied : messages.shell.voiceRecordingFailed);
+    };
+    recorder.onstop = () => finishRecording(mimeType);
+    recorder.onerror = () => {
+      setError(messages.shell.voiceRecordingFailed);
       setStatus("idle");
       releaseRecording({ finalize: false });
-    }
+    };
+    recorder.start();
+    startedAtRef.current = Date.now();
+    setStatus("recording");
+    timerRef.current = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
+    }, 250);
   }
 
   function stopRecording() {
@@ -151,8 +149,7 @@ export function VoiceRecorderField({
 
     releasePreviewUrl(true);
     const nextPreviewUrl = URL.createObjectURL(blob);
-    const file = new File([blob], recordedVoiceFilename(blobType), { type: blobType });
-    onFilesChange([...filesRef.current, file]);
+    onFilesChange([...filesRef.current, new File([blob], recordedVoiceFilename(blobType), { type: blobType })]);
     previewUrlRef.current = nextPreviewUrl;
     setPreviewUrl(nextPreviewUrl);
     setStatus("recorded");
@@ -173,167 +170,26 @@ export function VoiceRecorderField({
   }
 
   function releaseRecording({ finalize }: { finalize: boolean }) {
-    clearRecordingTimer();
-    const recorder = recorderRef.current;
-    recorderRef.current = null;
-    if (recorder && !finalize) {
-      recorder.ondataavailable = null;
-      recorder.onstop = null;
-      recorder.onerror = null;
-      if (recorder.state !== "inactive") {
-        recorder.stop();
-      }
-    }
-    if (finalize && recorder) {
-      recorder.ondataavailable = null;
-      recorder.onstop = null;
-      recorder.onerror = null;
-    }
-    if (streamRef.current) {
-      stopStream(streamRef.current);
-      streamRef.current = null;
-    }
-    chunksRef.current = [];
+    releaseRecordingResources({ chunksRef, recorderRef, streamRef }, finalize, clearRecordingTimer);
   }
 
   function releasePreviewUrl(updateState: boolean) {
-    if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
-      previewUrlRef.current = "";
-    }
-    if (updateState) {
-      setPreviewUrl("");
-    }
+    releasePreviewUrlRef(previewUrlRef, updateState, setPreviewUrl);
   }
 
   return (
-    <section className="voice-recorder-field" aria-label={messages.shell.voiceRecorder}>
-      <div className="voice-recorder-header">
-        <span>{messages.shell.nodeVoices}</span>
-        <strong>{statusLabel}</strong>
-      </div>
-
-      <div className="voice-recorder-bar" data-recording={status === "recording"}>
-        <button
-          className="voice-record-button"
-          disabled={!canRecord || status === "processing"}
-          onClick={recordingButtonAction(status, startRecording, stopRecording, cancelRecordingRequest)}
-          type="button"
-        >
-          {recordingButtonLabel(status)}
-        </button>
-        <span className="voice-record-time">{formatDuration(elapsedSeconds)}</span>
-        <span aria-live="polite" className="voice-record-state">
-          {canRecord ? statusLabel : messages.shell.voiceRecordingUnsupported}
-        </span>
-      </div>
-
-      {previewUrl ? (
-        <audio aria-label={messages.shell.recordingPreview} className="voice-record-preview" controls src={previewUrl}>
-          {messages.shell.audioUnsupported}
-        </audio>
-      ) : null}
-
-      <label>
-        <span>{messages.shell.nodeVoiceFiles}</span>
-        <input
-          accept="audio/aac,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm"
-          multiple
-          name="node-voices"
-          onChange={(event) => onFilesChange(Array.from(event.target.files ?? []))}
-          type="file"
-        />
-      </label>
-
-      {files.length ? <p className="file-selection">{formatSelectedFiles(files)}</p> : null}
-      {error ? <p className="form-error">{error}</p> : null}
-    </section>
+    <VoiceRecorderView
+      canRecord={canRecord}
+      elapsedSeconds={elapsedSeconds}
+      error={error}
+      files={files}
+      onCancelRequest={cancelRecordingRequest}
+      onFilesChange={onFilesChange}
+      onStartRecording={startRecording}
+      onStopRecording={stopRecording}
+      previewUrl={previewUrl}
+      status={status}
+      statusLabel={statusLabel}
+    />
   );
-}
-
-function hasRecorderSupport() {
-  return Boolean(
-    typeof navigator.mediaDevices?.getUserMedia === "function" &&
-      typeof MediaRecorder !== "undefined",
-  );
-}
-
-function preferredRecordingMimeType() {
-  if (typeof MediaRecorder === "undefined" || typeof MediaRecorder.isTypeSupported !== "function") {
-    return undefined;
-  }
-  return RECORDING_MIME_TYPES.find((mimeType) => MediaRecorder.isTypeSupported(mimeType));
-}
-
-function recordingStatusLabel(status: RecordingStatus) {
-  if (status === "requesting") {
-    return messages.shell.voiceRecordingRequesting;
-  }
-  if (status === "recording") {
-    return messages.shell.voiceRecordingActive;
-  }
-  if (status === "processing") {
-    return messages.shell.voiceRecordingProcessing;
-  }
-  if (status === "recorded") {
-    return messages.shell.voiceRecordingReady;
-  }
-  return messages.shell.voiceRecordingIdle;
-}
-
-function recordingButtonAction(
-  status: RecordingStatus,
-  startRecording: () => void,
-  stopRecording: () => void,
-  cancelRecordingRequest: () => void,
-) {
-  if (status === "recording") {
-    return stopRecording;
-  }
-  if (status === "requesting") {
-    return cancelRecordingRequest;
-  }
-  return startRecording;
-}
-
-function recordingButtonLabel(status: RecordingStatus) {
-  if (status === "recording") {
-    return messages.shell.stopRecording;
-  }
-  if (status === "requesting") {
-    return messages.shell.cancelRecordingRequest;
-  }
-  return messages.shell.startRecording;
-}
-
-function formatDuration(seconds: number) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
-}
-
-function formatSelectedFiles(files: File[]) {
-  return files.map((file) => file.name).join("、");
-}
-
-function recordedVoiceFilename(mimeType: string) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  return `现场录音-${timestamp}.${extensionForMimeType(mimeType)}`;
-}
-
-function extensionForMimeType(mimeType: string) {
-  const normalizedType = mimeType.split(";")[0];
-  if (normalizedType === "audio/mp4") {
-    return "m4a";
-  }
-  if (normalizedType === "audio/ogg") {
-    return "ogg";
-  }
-  return "webm";
-}
-
-function stopStream(stream: MediaStream) {
-  for (const track of stream.getTracks()) {
-    track.stop();
-  }
 }

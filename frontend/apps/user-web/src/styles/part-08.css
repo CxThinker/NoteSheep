@@ -1,0 +1,115 @@
+﻿
+.dialog-form {
+  display: grid;
+  gap: 14px;
+}
+
+.dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.dialog-actions .text-action {
+  margin-top: 0;
+}
+
+.file-selection {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.voice-recorder-field {
+  display: grid;
+  gap: 10px;
+  border: 2px solid color-mix(in srgb, var(--line) 22%, transparent);
+  border-radius: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--panel) 92%, var(--page));
+}
+
+.voice-recorder-header,
+.voice-recorder-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.voice-recorder-header span {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.voice-recorder-header strong,
+.voice-record-state {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.voice-recorder-bar {
+  min-height: 48px;
+  border: 2px solid color-mix(in srgb, var(--line) 42%, transparent);
+  border-radius: 8px;
+  padding: 7px;
+  background: var(--panel);
+}
+
+.voice-recorder-bar[data-recording="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+}
+
+.voice-record-button {
+  min-height: 36px;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: var(--secondary);
+  color: #101316;
+  font-weight: 900;
+}
+
+.voice-record-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.voice-record-time {
+  min-width: 48px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  text-align: center;
+}
+
+.voice-record-preview {
+  width: 100%;
+}
+
+.detail-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  border: 2px solid color-mix(in srgb, var(--line) 18%, transparent);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--panel) 92%, var(--accent));
+}
+
+.detail-row dt,
+.detail-row dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}

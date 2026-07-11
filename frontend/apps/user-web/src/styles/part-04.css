@@ -1,0 +1,110 @@
+﻿
+.notebook-item[data-active="true"] {
+  background: var(--secondary);
+  color: #101316;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--secondary) 24%, transparent);
+}
+
+.create-notebook-button {
+  width: 100%;
+  min-height: 50px;
+  background: transparent;
+  text-align: left;
+}
+
+.empty-state {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.notebook-canvas {
+  display: grid;
+  position: relative;
+  min-height: 100%;
+  grid-template-rows: 1fr;
+  gap: 0;
+  padding: 46px 54px 80px;
+}
+
+.canvas-header {
+  display: flex;
+  justify-content: center;
+  min-height: 70px;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.canvas-header h2 {
+  min-width: 150px;
+  margin: 0;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 24px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.tree-board {
+  position: relative;
+  display: block;
+  overflow: auto;
+  min-height: 100%;
+  border: 2px solid color-mix(in srgb, var(--line) 22%, transparent);
+  border-radius: 8px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--line) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 10%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-color: color-mix(in srgb, var(--page) 94%, var(--panel));
+  padding-top: 12px;
+}
+
+.zoom-toolbar {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid color-mix(in srgb, var(--line) 58%, transparent);
+  border-radius: 8px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--line) 28%, transparent);
+}
+
+.zoom-button,
+.zoom-reset {
+  display: grid;
+  min-height: 34px;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 900;
+}
+
+.zoom-button {
+  width: 36px;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.zoom-reset {
+  min-width: 58px;
+  padding: 0 10px;
+}
+
+.zoom-button:disabled,
+.zoom-reset:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
