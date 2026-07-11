@@ -114,7 +114,7 @@ function loadNodeDetail(context: DialogActionContext, target: NodeDetailTarget, 
     })
     .catch((caught) => {
       if (context.nodeDetailRequestRef.current === requestId) {
-        context.setWorkspaceError(caught instanceof Error ? caught.message : messages.shell.nodeDetailLoadFailed);
+        context.setWorkspaceError(messages.shell.nodeDetailLoadFailed);
       }
     })
     .finally(() => {

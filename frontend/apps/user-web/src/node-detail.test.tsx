@@ -33,7 +33,9 @@ describe("Node detail", () => {
     );
     expect(within(dialog).getByLabelText("图片内容")).toHaveAttribute("data-panel-open", "false");
     vi.useFakeTimers();
-    fireEvent.click(within(dialog).getByRole("button", { name: "展开图片" }));
+    act(() => {
+      fireEvent.click(within(dialog).getByRole("button", { name: "展开图片" }));
+    });
     expect(within(dialog).getByText("图片路径").closest("[data-panel-open]")).toHaveAttribute(
       "data-panel-open",
       "true"
@@ -132,7 +134,8 @@ describe("Node detail", () => {
     fireEvent.pointerUp(node, { clientX: 100, clientY: 100, pointerId: 7 });
 
     const dialog = screen.getByRole("dialog", { name: "节点详情" });
-    expect(await within(dialog).findByText("Request failed.")).toBeInTheDocument();
+    expect(await within(dialog).findByText("节点详情读取失败，请稍后重试。")).toBeInTheDocument();
+    expect(within(dialog).queryByText("Request failed.")).not.toBeInTheDocument();
     expect(within(dialog).getByLabelText("文本内容")).toBeInTheDocument();
     expect(within(dialog).getByLabelText("图片内容")).toHaveAttribute("data-panel-open", "false");
     expect(within(dialog).getByRole("button", { name: "展开图片" })).toBeEnabled();
