@@ -78,6 +78,8 @@ def tree_from_request(tree: TreeRequest) -> NotebookTree:
             )
             for edge in tree.edges
         ],
+        free_node_ids=list(tree.freeNodeIds),
+        deleted_node_ids=list(tree.deletedNodeIds),
     )
 
 
@@ -94,4 +96,6 @@ def tree_payload(tree: NotebookTree) -> dict[str, object]:
             }
             for edge in tree.edges
         ],
+        "freeNodeIds": list(tree.free_node_ids),
+        "deletedNodeIds": list(tree.deleted_node_ids),
     }

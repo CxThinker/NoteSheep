@@ -1,0 +1,131 @@
+
+.node-tray {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.node-tray-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 12px 12px 8px;
+}
+
+.node-tray-tab {
+  min-height: 38px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.node-tray-tab[data-active="true"] {
+  background: var(--secondary);
+  color: #101316;
+}
+
+.node-tray-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.node-tray-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.node-tray-content {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 100%;
+  padding: 8px 12px 14px;
+}
+
+.node-tray-item {
+  display: grid;
+  gap: 8px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--panel);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.node-tray-item[data-selected="true"] {
+  background: color-mix(in srgb, var(--secondary) 18%, var(--panel));
+  box-shadow: 3px 3px 0 var(--secondary);
+}
+
+.node-tray-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 8px;
+  align-items: center;
+}
+
+.node-tray-open,
+.node-tray-delete,
+.node-tray-place {
+  min-height: 34px;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 0.88rem;
+}
+
+.node-tray-open {
+  justify-content: flex-start;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.node-tray-place {
+  display: grid;
+  width: 34px;
+  place-items: center;
+  padding: 0;
+  background: var(--panel-strong);
+  color: var(--text);
+  font-weight: 900;
+}
+
+.node-tray-place[aria-pressed="true"] {
+  background: var(--secondary);
+  color: #101316;
+}
+
+.node-tray-delete {
+  background: var(--danger);
+  color: #fff;
+}
+
+.delete-dialog-message,
+.delete-dialog-node {
+  margin: 0 0 12px;
+  line-height: 1.55;
+}
+
+.delete-dialog-message {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.delete-dialog-node {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.delete-dialog-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 10px;
+}
+
+.delete-dialog-actions .text-action {
+  margin-top: 0;
+}

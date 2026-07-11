@@ -6,6 +6,8 @@ export const emptyTree: NotebookTree = {
   rootId: null,
   nodes: [],
   edges: [],
+  freeNodeIds: [],
+  deletedNodeIds: [],
 };
 
 export const treeWithNode: NotebookTree = {
@@ -20,6 +22,8 @@ export const treeWithNode: NotebookTree = {
     },
   ],
   edges: [{ from: "__notesheep_notebook_root__", to: "node-1", side: "right", order: 0 }],
+  freeNodeIds: [],
+  deletedNodeIds: [],
 };
 
 export class MockMediaRecorder {
@@ -103,6 +107,7 @@ export function makeApi(overrides: Partial<AuthApi> = {}): AuthApi {
     }),
     createNode: vi.fn().mockResolvedValue({ node: treeWithNode.nodes[0], tree: treeWithNode }),
     updateNotebookTree: vi.fn().mockImplementation((_, tree) => Promise.resolve({ tree })),
+    deleteNode: vi.fn().mockImplementation((_, __) => Promise.resolve({ tree: emptyTree })),
     ...overrides,
   };
 }

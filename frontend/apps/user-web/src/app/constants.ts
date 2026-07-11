@@ -4,4 +4,6 @@ export const EMPTY_TREE: NotebookTree = {
   rootId: null,
   nodes: [],
   edges: [],
+  freeNodeIds: [],
+  deletedNodeIds: [],
 };

@@ -11,6 +11,8 @@ export type TreeMoveResult = {
 
 export function normalizeNotebookTree(tree: NotebookTree): NotebookTree {
   const nodeIds = new Set(tree.nodes.map((node) => node.id));
+  const freeNodeIds = uniqueNodeIds(tree.freeNodeIds ?? [], nodeIds);
+  const deletedNodeIds = uniqueNodeIds(tree.deletedNodeIds ?? [], nodeIds);
   const validParentIds = new Set(nodeIds);
   if (tree.rootId) {
     validParentIds.add(tree.rootId);
@@ -42,7 +44,7 @@ export function normalizeNotebookTree(tree: NotebookTree): NotebookTree {
     }
   }
 
-  return { ...tree, edges: normalizedEdges };
+  return { ...tree, edges: normalizedEdges, freeNodeIds, deletedNodeIds };
 }
 
 export function moveNodeAsChild(tree: NotebookTree, draggedId: string, targetId: string): TreeMoveResult {
@@ -174,7 +176,7 @@ function removeIncomingEdge(edges: TreeEdge[], nodeId: string) {
 }
 
 function applySubtreeSide(edges: TreeEdge[], rootId: string, side: DropSide) {
-  const descendantIds = descendantsOf({ rootId, nodes: [], edges } as NotebookTree, rootId);
+  const descendantIds = descendantsOf({ rootId, nodes: [], edges, freeNodeIds: [], deletedNodeIds: [] }, rootId);
   descendantIds.add(rootId);
   return edges.map((edge) => (descendantIds.has(edge.to) ? { ...edge, side } : edge));
 }
@@ -185,4 +187,15 @@ function nextOrder(edges: TreeEdge[], parentId: string, side: DropSide) {
 
 function edgeKey(parentId: string, side: DropSide) {
   return `${parentId}:${side}`;
+}
+
+function uniqueNodeIds(nodeIds: string[], validIds: Set<string>) {
+  const seen = new Set<string>();
+  return nodeIds.filter((nodeId) => {
+    if (seen.has(nodeId) || !validIds.has(nodeId)) {
+      return false;
+    }
+    seen.add(nodeId);
+    return true;
+  });
 }

@@ -9,14 +9,22 @@ def test_get_notebook_tree_normalizes_legacy_edges(tmp_path):
     client, notes_root = make_client(tmp_path)
     login(client)
     client.post("/api/notebooks", json={"name": "笔记本1"})
-    root_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点一"})
-    child_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点二"})
+    root_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "节点一", "parentId": "__notesheep_notebook_root__"},
+    )
+    child_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "节点二", "parentId": "__notesheep_notebook_root__"},
+    )
     root_id = root_response.json()["node"]["id"]
     child_id = child_response.json()["node"]["id"]
     tree_path = notes_root / "笔记本1" / "note" / "tree.json"
     legacy_tree = json.loads(tree_path.read_text("utf-8"))
     legacy_tree["rootId"] = root_id
     legacy_tree["edges"] = [{"from": root_id, "to": child_id}]
+    legacy_tree.pop("freeNodeIds", None)
+    legacy_tree.pop("deletedNodeIds", None)
     tree_path.write_text(json.dumps(legacy_tree), encoding="utf-8")
 
     response = client.get(f"/api/notebooks/{quote('笔记本1')}/tree")
@@ -33,9 +41,18 @@ def test_update_notebook_tree_saves_ordered_sides(tmp_path):
     client, notes_root = make_client(tmp_path)
     login(client)
     client.post("/api/notebooks", json={"name": "笔记本1"})
-    root_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "中心"})
-    left_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "左侧"})
-    right_response = client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "右侧"})
+    root_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "中心", "parentId": "__notesheep_notebook_root__"},
+    )
+    left_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "左侧", "parentId": "__notesheep_notebook_root__"},
+    )
+    right_response = client.post(
+        f"/api/notebooks/{quote('笔记本1')}/nodes",
+        json={"title": "右侧", "parentId": "__notesheep_notebook_root__"},
+    )
     tree = right_response.json()["tree"]
     root_id = root_response.json()["node"]["id"]
     left_id = left_response.json()["node"]["id"]

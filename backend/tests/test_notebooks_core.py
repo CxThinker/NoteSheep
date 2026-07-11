@@ -34,6 +34,8 @@ def test_create_notebook_creates_project_structure(tmp_path):
         "rootId": None,
         "nodes": [],
         "edges": [],
+        "freeNodeIds": [],
+        "deletedNodeIds": [],
     }
 
 

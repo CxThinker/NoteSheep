@@ -33,6 +33,8 @@ class NotebookFileTreeMixin:
                 )
                 for index, edge in enumerate(tree_payload.get("edges", []))
             ],
+            free_node_ids=[str(node_id) for node_id in tree_payload.get("freeNodeIds", [])],
+            deleted_node_ids=[str(node_id) for node_id in tree_payload.get("deletedNodeIds", [])],
         )
         return self._with_notebook_root(self._normalize_tree(tree, require_connected=False))
 
@@ -78,17 +80,26 @@ class NotebookFileTreeMixin:
         if not tree.nodes:
             if tree.root_id is not None or tree.edges:
                 raise InvalidTreeStructureError("Empty tree cannot have root or edges.")
+            if tree.free_node_ids or tree.deleted_node_ids:
+                raise InvalidTreeStructureError("Empty tree cannot have node state lists.")
             return NotebookTree(root_id=None, nodes=[], edges=[])
         if root_id != NOTEBOOK_ROOT_ID and root_id not in node_id_set:
             raise InvalidTreeStructureError("Root node is missing.")
 
+        free_node_ids = unique_state_ids(tree.free_node_ids, node_id_set, "Free nodes are invalid.")
+        deleted_node_ids = unique_state_ids(tree.deleted_node_ids, node_id_set, "Deleted nodes are invalid.")
+        state_node_ids = set(free_node_ids) | set(deleted_node_ids)
+        if len(state_node_ids) != len(free_node_ids) + len(deleted_node_ids):
+            raise InvalidTreeStructureError("Node state cannot overlap.")
+
         parent_by_child: dict[str, str] = {}
         grouped_edges: dict[tuple[str, str], list[tuple[int, TreeEdge]]] = {}
-        valid_parent_ids = set(node_id_set)
+        active_node_ids = node_id_set - state_node_ids
+        valid_parent_ids = set(active_node_ids)
         if root_id == NOTEBOOK_ROOT_ID:
             valid_parent_ids.add(NOTEBOOK_ROOT_ID)
         for index, edge in enumerate(tree.edges):
-            if edge.from_id not in valid_parent_ids or edge.to_id not in node_id_set:
+            if edge.from_id not in valid_parent_ids or edge.to_id not in active_node_ids:
                 raise InvalidTreeStructureError("Edge references missing node.")
             if edge.from_id == edge.to_id:
                 raise InvalidTreeStructureError("Self edges are not allowed.")
@@ -123,7 +134,7 @@ class NotebookFileTreeMixin:
 
         visit(root_id)
         visited_nodes = visited - {NOTEBOOK_ROOT_ID}
-        if require_connected and visited_nodes != node_id_set:
+        if require_connected and visited_nodes != active_node_ids:
             raise InvalidTreeStructureError("All nodes must be connected to the root.")
 
         parent_order = [root_id, *node_ids] if root_id == NOTEBOOK_ROOT_ID else node_ids
@@ -142,7 +153,13 @@ class NotebookFileTreeMixin:
                     TreeEdge(from_id=from_id, to_id=edge.to_id, side=side, order=order)
                 )
 
-        return NotebookTree(root_id=root_id, nodes=tree.nodes, edges=normalized_edges)
+        return NotebookTree(
+            root_id=root_id,
+            nodes=tree.nodes,
+            edges=normalized_edges,
+            free_node_ids=free_node_ids,
+            deleted_node_ids=deleted_node_ids,
+        )
 
     def _canonical_root_id(self, tree: NotebookTree) -> str | None:
         if not tree.nodes:
@@ -162,6 +179,8 @@ class NotebookFileTreeMixin:
                 TreeEdge(from_id=NOTEBOOK_ROOT_ID, to_id=root_id, side="right", order=0),
                 *tree.edges,
             ],
+            free_node_ids=tree.free_node_ids,
+            deleted_node_ids=tree.deleted_node_ids,
         )
 
 def node_payload(node: NotebookNode) -> dict[str, str]:
@@ -187,4 +206,17 @@ def tree_payload(tree: NotebookTree) -> dict[str, object]:
             }
             for edge in tree.edges
         ],
+        "freeNodeIds": list(tree.free_node_ids),
+        "deletedNodeIds": list(tree.deleted_node_ids),
     }
+
+
+def unique_state_ids(node_ids: list[str], valid_ids: set[str], message: str) -> list[str]:
+    seen: set[str] = set()
+    normalized: list[str] = []
+    for node_id in node_ids:
+        if node_id in seen or node_id not in valid_ids:
+            raise InvalidTreeStructureError(message)
+        seen.add(node_id)
+        normalized.append(node_id)
+    return normalized

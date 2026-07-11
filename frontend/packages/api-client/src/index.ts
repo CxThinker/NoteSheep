@@ -28,6 +28,7 @@ export interface AuthApi {
   getNodeDetail(notebookName: string, nodeId: string): Promise<NotebookNodeDetailResponse>;
   createNode(notebookName: string, payload: CreateNodeRequest): Promise<CreateNodeResponse>;
   updateNotebookTree(notebookName: string, tree: NotebookTree): Promise<NotebookTreeResponse>;
+  deleteNode(notebookName: string, nodeId: string): Promise<NotebookTreeResponse>;
 }
 
 export class ApiError extends Error {
@@ -112,6 +113,13 @@ export class HttpAuthApi implements AuthApi {
       method: "PUT",
       body: JSON.stringify({ tree }),
     });
+  }
+
+  deleteNode(notebookName: string, nodeId: string): Promise<NotebookTreeResponse> {
+    return this.request<NotebookTreeResponse>(
+      `/api/notebooks/${encodeURIComponent(notebookName)}/nodes/${encodeURIComponent(nodeId)}`,
+      { method: "DELETE" },
+    );
   }
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {

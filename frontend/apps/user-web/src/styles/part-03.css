@@ -58,6 +58,26 @@
   border-right: 2px solid color-mix(in srgb, var(--line) 34%, transparent);
 }
 
+.notebook-sidebar-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) minmax(220px, 0.85fr);
+  border-right: 2px solid color-mix(in srgb, var(--line) 34%, transparent);
+}
+
+.sidebar-scroll-shell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: 18px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.sidebar-scroll-shell + .sidebar-scroll-shell {
+  border-top: 2px solid color-mix(in srgb, var(--line) 34%, transparent);
+}
+
 .workspace-scrollbar {
   position: relative;
   display: block;

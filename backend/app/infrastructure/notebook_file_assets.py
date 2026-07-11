@@ -75,7 +75,10 @@ class NotebookFileAssetMixin:
             note_path.unlink()
         for directory in (image_dir, voice_dir):
             if directory.exists():
-                shutil.rmtree(directory)
+                self._remove_directory(directory)
+
+    def _remove_directory(self, directory: Path) -> None:
+        shutil.rmtree(directory)
 
     def _list_assets(
         self,

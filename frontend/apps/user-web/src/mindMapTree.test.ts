@@ -19,6 +19,8 @@ const tree: NotebookTree = {
     { from: "root", to: "a", side: "right", order: 0 },
     { from: "a", to: "c", side: "right", order: 0 },
   ],
+  freeNodeIds: [],
+  deletedNodeIds: [],
 };
 
 describe("mind map tree operations", () => {

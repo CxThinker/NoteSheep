@@ -4,12 +4,14 @@ import { AuthApi, NotebookEntry, NotebookNodeDetail, NotebookTree } from "@notes
 
 import { NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
 import { messages } from "../messages";
-import { NOTEBOOK_ROOT_ID } from "../mindMapTree";
 import { EMPTY_TREE } from "./constants";
 import { WorkspaceDialog } from "./types";
+import { useWorkspaceDeleteController } from "./useWorkspaceDeleteController";
 import { createWorkspaceDialogActions } from "./workspaceDialogActions";
+import { createNodeFromForm } from "./workspaceNodeCreateActions";
+import { placeTrayNode } from "./workspaceTrayActions";
 import { useWorkspaceLoaders } from "./useWorkspaceLoaders";
-import { findParentId, saveTreeUpdate, treeAfterNodeCreate } from "./workspaceTreeActions";
+import { saveTreeUpdate } from "./workspaceTreeActions";
 
 export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
   const [notebooks, setNotebooks] = useState<NotebookEntry[]>([]);
@@ -91,41 +93,22 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
   }
 
   async function handleCreateNode(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setWorkspaceError("");
-    const nodeTitle = newNodeTitle.trim();
-    if (!selectedNotebookName || !nodeTitle) {
-      setWorkspaceError(messages.shell.nodeTitleRequired);
-      return;
-    }
-
-    setWorkspaceSubmitting(true);
-    try {
-      const createTarget = nodeCreateTarget ?? { kind: "child" as const, parentId: NOTEBOOK_ROOT_ID };
-      const parentId = createTarget.kind === "child" ? createTarget.parentId : findParentId(tree, createTarget.targetId) ?? NOTEBOOK_ROOT_ID;
-      const response = await authApi.createNode(selectedNotebookName, {
-        title: nodeTitle,
-        parentId,
-        ...(newNodeTextContent ? { textContent: newNodeTextContent } : {}),
-        ...(newNodeImages.length ? { images: newNodeImages } : {}),
-        ...(newNodeVoices.length ? { voices: newNodeVoices } : {}),
-      });
-      setTree(
-        await treeAfterNodeCreate({
-          authApi,
-          nodeId: response.node.id,
-          selectedNotebookName,
-          target: createTarget,
-          tree: response.tree,
-        }),
-      );
-      resetNodeForm();
-      setWorkspaceDialog(null);
-    } catch (caught) {
-      setWorkspaceError(caught instanceof Error ? caught.message : messages.shell.nodeActionFailed);
-    } finally {
-      setWorkspaceSubmitting(false);
-    }
+    await createNodeFromForm({
+      authApi,
+      event,
+      newNodeImages,
+      newNodeTextContent,
+      newNodeTitle,
+      newNodeVoices,
+      nodeCreateTarget,
+      resetNodeForm,
+      selectedNotebookName,
+      setTree,
+      setWorkspaceDialog,
+      setWorkspaceError,
+      setWorkspaceSubmitting,
+      tree,
+    });
   }
 
   function resetNodeForm() {
@@ -136,8 +119,20 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     setNodeCreateTarget(null);
   }
 
+  const deleteActions = useWorkspaceDeleteController({
+    authApi,
+    saveTree: handleUpdateTree,
+    selectedNotebookName,
+    setTree,
+    setWorkspaceDialog,
+    setWorkspaceError,
+    setWorkspaceSubmitting,
+    tree,
+  });
+
   const dialogActions = createWorkspaceDialogActions({
     authApi,
+    clearPendingDelete: deleteActions.clearPendingDelete,
     nodeDetailRequestRef,
     selectedNotebookName,
     setNewNodeImages,
@@ -169,7 +164,13 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     nodeDetailTarget,
     notebooks,
     ...dialogActions,
+    onConfirmDeleteNodeOnly: deleteActions.onConfirmDeleteNodeOnly,
+    onConfirmDeleteSubtree: deleteActions.onConfirmDeleteSubtree,
+    onPermanentDeleteNode: deleteActions.onPermanentDeleteNode,
+    onPlaceTrayNode: handlePlaceTrayNode,
+    onSoftDeleteNode: deleteActions.onSoftDeleteNode,
     onUpdateTree: handleUpdateTree,
+    pendingDeleteTarget: deleteActions.pendingDeleteTarget,
     selectedNotebookName,
     setNewNodeImages,
     setNewNodeTextContent,
@@ -190,6 +191,16 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
       setTree,
       setWorkspaceError,
       setWorkspaceSubmitting,
+    });
+  }
+
+  async function handlePlaceTrayNode(nodeId: string, target: Parameters<typeof placeTrayNode>[0]["target"]) {
+    await placeTrayNode({
+      nodeId,
+      saveTree: handleUpdateTree,
+      setWorkspaceError,
+      target,
+      tree,
     });
   }
 }

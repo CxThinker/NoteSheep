@@ -48,6 +48,9 @@ class NotebookRepository(Protocol):
     def replace_tree(self, notebook_name: str, tree: NotebookTree) -> NotebookTree:
         ...
 
+    def delete_node(self, notebook_name: str, node_id: str) -> NotebookTree:
+        ...
+
 
 class NotebookService:
     def __init__(self, notebooks: NotebookRepository) -> None:
@@ -87,3 +90,6 @@ class NotebookService:
 
     def replace_tree(self, notebook_name: str, tree: NotebookTree) -> NotebookTree:
         return self._notebooks.replace_tree(notebook_name, tree)
+
+    def delete_node(self, notebook_name: str, node_id: str) -> NotebookTree:
+        return self._notebooks.delete_node(notebook_name, node_id)
