@@ -7,7 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
-  WheelEvent,
+  WheelEvent as ReactWheelEvent,
 } from "react";
 
 import {
@@ -21,6 +21,7 @@ import {
 import { applyTheme, readStoredTheme, storeTheme, ThemeName, THEMES } from "@notesheep/ui";
 
 import { MindMapCanvas, NodeCreateTarget, NodeDetailTarget } from "./MindMapCanvas";
+import { VoiceRecorderField } from "./VoiceRecorderField";
 import { messages } from "./messages";
 import { moveNodeAsSibling, NOTEBOOK_ROOT_ID } from "./mindMapTree";
 
@@ -578,8 +579,16 @@ function AppShell({
 }) {
   const notebookSidebarRef = useRef<HTMLElement | null>(null);
   const scrollbarDragRef = useRef<ScrollbarDrag | null>(null);
+  const treeBoardRef = useRef<HTMLDivElement | null>(null);
   const [notebookScrollbar, setNotebookScrollbar] = useState<ScrollbarState>(EMPTY_SCROLLBAR);
+  const [isNodeVoiceBusy, setNodeVoiceBusy] = useState(false);
   const [workspaceZoom, setWorkspaceZoom] = useState(1);
+
+  useEffect(() => {
+    if (workspaceDialog !== "node") {
+      setNodeVoiceBusy(false);
+    }
+  }, [workspaceDialog]);
 
   function syncNotebookScrollbar() {
     const element = notebookSidebarRef.current;
@@ -619,7 +628,7 @@ function AppShell({
     scrollNotebookTo((nextThumbTop / maxThumbTop) * maxScroll);
   }
 
-  function handleNotebookScrollbarWheel(event: WheelEvent<HTMLDivElement>) {
+  function handleNotebookScrollbarWheel(event: ReactWheelEvent<HTMLDivElement>) {
     event.preventDefault();
     const element = notebookSidebarRef.current;
     if (!element) {
@@ -705,14 +714,6 @@ function AppShell({
     setWorkspaceZoom(1);
   }
 
-  function handleTreeBoardWheel(event: WheelEvent<HTMLDivElement>) {
-    if (event.deltaY === 0) {
-      return;
-    }
-    event.preventDefault();
-    updateWorkspaceZoom(event.deltaY < 0 ? WORKSPACE_ZOOM_STEP : -WORKSPACE_ZOOM_STEP);
-  }
-
   useEffect(() => {
     const element = notebookSidebarRef.current;
     if (!element) {
@@ -737,6 +738,28 @@ function AppShell({
       resizeObserver?.disconnect();
     };
   }, [notebooks.length]);
+
+  useEffect(() => {
+    const element = treeBoardRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    function handleTreeBoardWheel(event: globalThis.WheelEvent) {
+      if (event.deltaY === 0) {
+        return;
+      }
+      event.preventDefault();
+      setWorkspaceZoom((currentZoom) =>
+        clampZoom(currentZoom + (event.deltaY < 0 ? WORKSPACE_ZOOM_STEP : -WORKSPACE_ZOOM_STEP)),
+      );
+    }
+
+    element.addEventListener("wheel", handleTreeBoardWheel, { passive: false });
+    return () => {
+      element.removeEventListener("wheel", handleTreeBoardWheel);
+    };
+  }, []);
 
   return (
     <main className="shell-page">
@@ -844,7 +867,7 @@ function AppShell({
             </button>
           </div>
 
-          <div aria-label={messages.shell.treeBoard} className="tree-board" onWheel={handleTreeBoardWheel}>
+          <div aria-label={messages.shell.treeBoard} className="tree-board" ref={treeBoardRef}>
             {!selectedNotebookName ? (
               <p className="empty-state">{messages.shell.chooseNotebook}</p>
             ) : (
@@ -900,6 +923,7 @@ function AppShell({
           isSubmitting={isWorkspaceSubmitting}
           onClose={onCloseDialog}
           onSubmit={onCreateNode}
+          submitDisabled={isNodeVoiceBusy}
           submitLabel={messages.shell.saveNode}
           title={
             nodeCreateTarget?.kind === "sibling"
@@ -936,17 +960,11 @@ function AppShell({
             />
           </label>
           {newNodeImages.length ? <p className="file-selection">{formatSelectedFiles(newNodeImages)}</p> : null}
-          <label>
-            <span>{messages.shell.nodeVoices}</span>
-            <input
-              accept="audio/aac,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm"
-              multiple
-              name="node-voices"
-              onChange={(event) => onNewNodeVoicesChange(Array.from(event.target.files ?? []))}
-              type="file"
-            />
-          </label>
-          {newNodeVoices.length ? <p className="file-selection">{formatSelectedFiles(newNodeVoices)}</p> : null}
+          <VoiceRecorderField
+            files={newNodeVoices}
+            onBusyChange={setNodeVoiceBusy}
+            onFilesChange={onNewNodeVoicesChange}
+          />
         </WorkspaceDialogPanel>
       ) : null}
 
@@ -1220,6 +1238,7 @@ function WorkspaceDialogPanel({
   isSubmitting,
   onClose,
   onSubmit,
+  submitDisabled = false,
   submitLabel,
   title,
 }: {
@@ -1228,6 +1247,7 @@ function WorkspaceDialogPanel({
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  submitDisabled?: boolean;
   submitLabel: string;
   title: string;
 }) {
@@ -1247,7 +1267,7 @@ function WorkspaceDialogPanel({
             <button className="text-action" onClick={onClose} type="button">
               {messages.shell.cancel}
             </button>
-            <button className="primary-action" disabled={isSubmitting} type="submit">
+            <button className="primary-action" disabled={isSubmitting || submitDisabled} type="submit">
               {submitLabel}
             </button>
           </div>
