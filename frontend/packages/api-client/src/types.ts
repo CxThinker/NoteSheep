@@ -26,12 +26,25 @@ export type NotebookEntry = {
   name: string;
 };
 
+export type DeletedNotebookEntry = {
+  id: string;
+  name: string;
+};
+
 export type NotebooksResponse = {
   notebooks: NotebookEntry[];
 };
 
+export type DeletedNotebooksResponse = {
+  notebooks: DeletedNotebookEntry[];
+};
+
 export type NotebookResponse = {
   notebook: NotebookEntry;
+};
+
+export type DeletedNotebookResponse = {
+  notebook: DeletedNotebookEntry;
 };
 
 export type NotebookNode = {

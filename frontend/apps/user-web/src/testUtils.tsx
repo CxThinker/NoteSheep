@@ -98,7 +98,11 @@ export function makeApi(overrides: Partial<AuthApi> = {}): AuthApi {
     logout: vi.fn().mockResolvedValue(undefined),
     listFolders: vi.fn().mockResolvedValue({ folders: [{ id: 1, name: "笔记本1", sortOrder: 0 }] }),
     listNotebooks: vi.fn().mockResolvedValue({ notebooks: [{ name: "笔记本1" }] }),
+    listDeletedNotebooks: vi.fn().mockResolvedValue({ notebooks: [] }),
     createNotebook: vi.fn().mockResolvedValue({ notebook: { name: "笔记本1" } }),
+    deleteNotebook: vi.fn().mockResolvedValue({ notebook: { id: "deleted-1", name: "笔记本1" } }),
+    restoreDeletedNotebook: vi.fn().mockResolvedValue({ notebook: { name: "笔记本1" } }),
+    permanentDeleteNotebook: vi.fn().mockResolvedValue(undefined),
     renameNotebook: vi.fn().mockResolvedValue({ notebook: { name: "笔记本2" } }),
     getNotebookTree: vi.fn().mockResolvedValue({ tree: treeWithNode }),
     getNodeDetail: vi.fn().mockResolvedValue({

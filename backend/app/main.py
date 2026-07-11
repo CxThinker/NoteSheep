@@ -19,6 +19,7 @@ from app.infrastructure.tokens import SecretsTokenGenerator
 from app.infrastructure.user_repository import SQLiteUserRepository
 from app.interfaces.http.auth_routes import router as auth_router
 from app.interfaces.http.folder_routes import router as folder_router
+from app.interfaces.http.notebook_lifecycle_routes import router as notebook_lifecycle_router
 from app.interfaces.http.notebook_routes import router as notebook_router
 
 
@@ -77,6 +78,7 @@ def create_app(
     app.include_router(auth_router)
     app.include_router(folder_router)
     app.include_router(notebook_router)
+    app.include_router(notebook_lifecycle_router)
     return app
 
 

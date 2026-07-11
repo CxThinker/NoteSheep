@@ -242,7 +242,7 @@ async function login() {
   fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
   fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
   fireEvent.click(screen.getByRole("button", { name: "登录" }));
-  await screen.findByRole("button", { name: "笔记本1" });
+  await screen.findByRole("button", { name: "打开笔记本 笔记本1" });
 }
 
 function mockDropZoneRect(element: HTMLElement) {

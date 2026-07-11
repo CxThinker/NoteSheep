@@ -16,7 +16,7 @@ describe("Workspace shell", () => {
     fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
     fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
-    expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "打开笔记本 笔记本1" })).toBeInTheDocument();
     expect(await screen.findByText("节点一")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "根节点 笔记本1" })).toBeInTheDocument();
     expect(api.listNotebooks).toHaveBeenCalled();
@@ -28,6 +28,8 @@ describe("Workspace shell", () => {
       "aria-controls",
       "notebook-sidebar-scroll"
     );
+    expect(screen.getByRole("tab", { name: "笔记本" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "已删除笔记本" })).toBeInTheDocument();
     expect(screen.getByLabelText("笔记本列表")).toBeInTheDocument();
     expect(screen.getByRole("scrollbar", { name: "节点托盘滚动条" })).toHaveAttribute("aria-controls", "node-tray-scroll");
     expect(screen.getByRole("tab", { name: "自由节点" })).toBeInTheDocument();
@@ -60,7 +62,7 @@ describe("Workspace shell", () => {
     fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
     fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
-    expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "打开笔记本 笔记本1" })).toBeInTheDocument();
     expect(await screen.findByText("笔记本内容读取失败，请稍后重试。")).toBeInTheDocument();
     expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
   });

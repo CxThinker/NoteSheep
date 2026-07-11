@@ -5,18 +5,14 @@ import { LanguageCode, NeonTextColorName, ThemeName } from "@notesheep/ui";
 
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
-import { DeleteNodeDialog } from "./DeleteNodeDialog";
-import { NotebookDetailDialog } from "./NotebookDetailDialog";
-import { NotebookDialog } from "./NotebookDialog";
 import { NotebookSidebar } from "./NotebookSidebar";
-import { NodeDetailDialog } from "./NodeDetailDialog";
-import { NodeDialog } from "./NodeDialog";
 import { NodeTrayTab } from "./NodeTray";
 import { SettingsDialog } from "./SettingsDialog";
 import { usePanelScrollbar } from "./usePanelScrollbar";
 import { useWorkspaceController } from "./useWorkspaceController";
 import { useWorkspaceZoom } from "./useWorkspaceZoom";
 import { WorkspaceCanvas } from "./WorkspaceCanvas";
+import { WorkspaceDialogs } from "./WorkspaceDialogs";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
   language: LanguageCode;
@@ -29,50 +25,35 @@ type AppShellProps = ReturnType<typeof useWorkspaceController> & {
   user: AuthUser;
 };
 
-export function AppShell({
-  handleCreateNode,
-  handleCreateNotebook,
-  isNodeDetailLoading,
-  isWorkspaceSubmitting,
-  language,
-  newNodeImages,
-  newNodeTextContent,
-  newNodeTitle,
-  newNodeVoices,
-  newNotebookName,
-  neonTextColor,
-  nodeCreateTarget,
-  nodeDetail,
-  nodeDetailTarget,
-  notebooks,
-  onCloseDialog,
-  onConfirmDeleteNodeOnly,
-  onConfirmDeleteSubtree,
-  onLanguageChange,
-  onLogout,
-  onNeonTextColorChange,
-  onOpenNodeDetail,
-  onOpenNodeDialog,
-  onOpenNotebookDialog,
-  onPermanentDeleteNode,
-  onPlaceTrayNode,
-  onSelectNotebook,
-  onSoftDeleteNode,
-  onThemeChange,
-  onUpdateTree,
-  pendingDeleteTarget,
-  selectedNotebookName,
-  setNewNodeImages,
-  setNewNodeTextContent,
-  setNewNodeTitle,
-  setNewNodeVoices,
-  setNewNotebookName,
-  tree,
-  theme,
-  user,
-  workspaceDialog,
-  workspaceError,
-}: AppShellProps) {
+export function AppShell(props: AppShellProps) {
+  const {
+    deletedNotebooks,
+    isWorkspaceSubmitting,
+    language,
+    neonTextColor,
+    notebooks,
+    onDeleteNotebook,
+    onLanguageChange,
+    onLogout,
+    onNeonTextColorChange,
+    onOpenNodeDetail,
+    onOpenNodeDialog,
+    onOpenNotebookDialog,
+    onPermanentDeleteNode,
+    onPermanentDeleteNotebook,
+    onPlaceTrayNode,
+    onRestoreNotebook,
+    onSelectNotebook,
+    onSoftDeleteNode,
+    onThemeChange,
+    onUpdateTree,
+    selectedNotebookName,
+    theme,
+    tree,
+    user,
+    workspaceDialog,
+    workspaceError,
+  } = props;
   const [activeTrayTab, setActiveTrayTab] = useState<NodeTrayTab>("free");
   const [selectedTrayNodeId, setSelectedTrayNodeId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -83,7 +64,6 @@ export function AppShell({
     ".node-tray-content",
   );
   const zoom = useWorkspaceZoom();
-  const [isNodeVoiceBusy, setNodeVoiceBusy] = useNodeVoiceBusy(workspaceDialog);
 
   useEffect(() => {
     setSelectedTrayNodeId(null);
@@ -117,14 +97,18 @@ export function AppShell({
       <section className="workspace-frame" aria-label={messages.shell.workspace}>
         <NotebookSidebar
           activeTrayTab={activeTrayTab}
+          deletedNotebooks={deletedNotebooks}
           isSubmitting={isWorkspaceSubmitting}
           notebookScroll={notebookScroll}
           notebooks={notebooks}
           onCreateNotebook={onOpenNotebookDialog}
+          onDeleteNotebook={onDeleteNotebook}
           onOpenNodeDetail={onOpenNodeDetail}
           onDropTargetPreview={handleDropTargetPreview}
           onPermanentDeleteNode={onPermanentDeleteNode}
+          onPermanentDeleteNotebook={onPermanentDeleteNotebook}
           onPlaceTrayNode={handlePlaceTrayNode}
+          onRestoreNotebook={onRestoreNotebook}
           onSelectNotebook={onSelectNotebook}
           onSelectTrayNode={setSelectedTrayNodeId}
           onTrayTabChange={setActiveTrayTab}
@@ -152,51 +136,7 @@ export function AppShell({
           workspaceZoom={zoom.workspaceZoom}
         />
       </section>
-      {workspaceDialog === "notebook" ? (
-        <NotebookDialog
-          error={workspaceError}
-          isSubmitting={isWorkspaceSubmitting}
-          name={newNotebookName}
-          onClose={onCloseDialog}
-          onNameChange={setNewNotebookName}
-          onSubmit={handleCreateNotebook}
-        />
-      ) : null}
-      {workspaceDialog === "node" ? (
-        <NodeDialog
-          error={workspaceError}
-          images={newNodeImages}
-          isSubmitting={isWorkspaceSubmitting}
-          isVoiceBusy={isNodeVoiceBusy}
-          nodeCreateTarget={nodeCreateTarget}
-          onBusyChange={setNodeVoiceBusy}
-          onClose={onCloseDialog}
-          onImagesChange={setNewNodeImages}
-          onSubmit={handleCreateNode}
-          onTextContentChange={setNewNodeTextContent}
-          onTitleChange={setNewNodeTitle}
-          onVoicesChange={setNewNodeVoices}
-          textContent={newNodeTextContent}
-          title={newNodeTitle}
-          voices={newNodeVoices}
-        />
-      ) : null}
-      {workspaceDialog === "notebook-detail" && nodeDetailTarget?.kind === "notebook" ? (
-        <NotebookDetailDialog onClose={onCloseDialog} target={nodeDetailTarget} />
-      ) : null}
-      {workspaceDialog === "node-detail" && nodeDetailTarget?.kind === "node" ? (
-        <NodeDetailDialog detail={nodeDetail} error={workspaceError} isLoading={isNodeDetailLoading} onClose={onCloseDialog} target={nodeDetailTarget} />
-      ) : null}
-      {workspaceDialog === "delete-node" && pendingDeleteTarget?.node ? (
-        <DeleteNodeDialog
-          hasChildren={pendingDeleteTarget.hasChildren}
-          isSubmitting={isWorkspaceSubmitting}
-          nodeTitle={pendingDeleteTarget.node.title}
-          onCancel={onCloseDialog}
-          onDeleteNodeOnly={onConfirmDeleteNodeOnly}
-          onDeleteSubtree={onConfirmDeleteSubtree}
-        />
-      ) : null}
+      <WorkspaceDialogs controller={props} />
       {settingsOpen ? (
         <SettingsDialog
           language={language}
@@ -220,16 +160,6 @@ export function AppShell({
   function handleDropTargetPreview(target: DropTarget | null) {
     setTrayDropTarget((current) => (sameDropTarget(current, target) ? current : target));
   }
-}
-
-function useNodeVoiceBusy(workspaceDialog: string | null) {
-  const [isNodeVoiceBusy, setNodeVoiceBusy] = useState(false);
-  useEffect(() => {
-    if (workspaceDialog !== "node") {
-      setNodeVoiceBusy(false);
-    }
-  }, [workspaceDialog]);
-  return [isNodeVoiceBusy, setNodeVoiceBusy] as const;
 }
 
 function sameDropTarget(left: DropTarget | null, right: DropTarget | null) {

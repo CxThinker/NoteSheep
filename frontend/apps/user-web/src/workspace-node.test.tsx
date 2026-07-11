@@ -33,7 +33,7 @@ describe("Workspace node creation", () => {
     await waitFor(() => {
       expect(api.createNotebook).toHaveBeenCalledWith({ name: "笔记本1" });
     });
-    expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "打开笔记本 笔记本1" })).toBeInTheDocument();
   });
 
   it("shows a localized error when notebook creation fails", async () => {
@@ -68,7 +68,7 @@ describe("Workspace node creation", () => {
     fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
     fireEvent.click(screen.getByRole("button", { name: "登录" }));
 
-    await screen.findByRole("button", { name: "笔记本1" });
+    await screen.findByRole("button", { name: "打开笔记本 笔记本1" });
     fireEvent.click(screen.getByRole("button", { name: "创建节点" }));
     expect(screen.getByRole("dialog", { name: "创建新节点" })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("节点名称"), { target: { value: "节点一" } });

@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import quote
 
 from app.domain.notebook import (
+    DeletedNotebookEntry,
     NotebookAsset,
     NotebookEntry,
     NotebookNode,
@@ -15,6 +16,10 @@ from app.interfaces.http.notebook_schemas import TreeRequest
 
 def notebook_payload(notebook: NotebookEntry) -> dict[str, str]:
     return {"name": notebook.name}
+
+
+def deleted_notebook_payload(notebook: DeletedNotebookEntry) -> dict[str, str]:
+    return {"id": notebook.id, "name": notebook.name}
 
 
 def node_payload(node: NotebookNode) -> dict[str, str]:

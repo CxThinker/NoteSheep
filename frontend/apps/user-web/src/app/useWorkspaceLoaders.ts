@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { AuthApi, NotebookEntry, NotebookTree } from "@notesheep/api-client";
+import { AuthApi, DeletedNotebookEntry, NotebookEntry, NotebookTree } from "@notesheep/api-client";
 
 import { messages } from "../messages";
 import { EMPTY_TREE } from "./constants";
@@ -10,6 +10,7 @@ type WorkspaceLoaderOptions = {
   hasUser: boolean;
   onApplyNotebooks: (notebooks: NotebookEntry[]) => void;
   onClearWorkspace: () => void;
+  onDeletedNotebooksChange: (notebooks: DeletedNotebookEntry[]) => void;
   onWorkspaceError: (message: string) => void;
   onTreeChange: (tree: NotebookTree) => void;
   selectedNotebookName: string;
@@ -20,6 +21,7 @@ export function useWorkspaceLoaders({
   hasUser,
   onApplyNotebooks,
   onClearWorkspace,
+  onDeletedNotebooksChange,
   onWorkspaceError,
   onTreeChange,
   selectedNotebookName,
@@ -45,6 +47,34 @@ export function useWorkspaceLoaders({
         if (!cancelled) {
           onClearWorkspace();
           onWorkspaceError(messages.shell.notebookLoadFailed);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authApi, hasUser]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!hasUser) {
+      onDeletedNotebooksChange([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    authApi
+      .listDeletedNotebooks()
+      .then((response) => {
+        if (!cancelled) {
+          onDeletedNotebooksChange(response.notebooks);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          onDeletedNotebooksChange([]);
+          onWorkspaceError(messages.shell.deletedNotebookLoadFailed);
         }
       });
 

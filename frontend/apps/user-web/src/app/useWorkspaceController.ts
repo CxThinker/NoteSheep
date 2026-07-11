@@ -1,21 +1,19 @@
 import { FormEvent, useRef, useState } from "react";
 
-import { AuthApi, NotebookEntry, NotebookNodeDetail, NotebookTree } from "@notesheep/api-client";
-
+import { AuthApi, NotebookNodeDetail, NotebookTree } from "@notesheep/api-client";
 import { NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
 import { EMPTY_TREE } from "./constants";
 import { WorkspaceDialog } from "./types";
+import { useNotebookCollection } from "./useNotebookCollection";
 import { useWorkspaceDeleteController } from "./useWorkspaceDeleteController";
 import { createWorkspaceDialogActions } from "./workspaceDialogActions";
 import { createNotebookFromForm } from "./workspaceNotebookActions";
+import { createNotebookLifecycleActions } from "./workspaceNotebookLifecycleController";
 import { createNodeFromForm } from "./workspaceNodeCreateActions";
 import { placeTrayNode } from "./workspaceTrayActions";
 import { useWorkspaceLoaders } from "./useWorkspaceLoaders";
 import { saveTreeUpdate } from "./workspaceTreeActions";
-
 export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
-  const [notebooks, setNotebooks] = useState<NotebookEntry[]>([]);
-  const [selectedNotebookName, setSelectedNotebookName] = useState("");
   const [newNotebookName, setNewNotebookName] = useState("");
   const [tree, setTree] = useState<NotebookTree>(EMPTY_TREE);
   const [newNodeTitle, setNewNodeTitle] = useState("");
@@ -30,21 +28,28 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
   const [isWorkspaceSubmitting, setWorkspaceSubmitting] = useState(false);
   const [workspaceDialog, setWorkspaceDialog] = useState<WorkspaceDialog>(null);
   const nodeDetailRequestRef = useRef(0);
+  const {
+    applyNotebooks,
+    clearNotebooks,
+    deletedNotebooks,
+    notebooks,
+    selectedNotebookName,
+    setDeletedNotebooks,
+    setSelectedNotebookName,
+  } = useNotebookCollection({ onEmptySelection: () => setTree(EMPTY_TREE) });
 
   useWorkspaceLoaders({
     authApi,
     hasUser,
     onApplyNotebooks: applyNotebooks,
     onClearWorkspace: clearWorkspace,
+    onDeletedNotebooksChange: setDeletedNotebooks,
     onWorkspaceError: setWorkspaceError,
     onTreeChange: setTree,
     selectedNotebookName,
   });
-
   function clearWorkspace() {
-    setNotebooks([]);
-    setSelectedNotebookName("");
-    setTree(EMPTY_TREE);
+    clearNotebooks();
     setNodeCreateTarget(null);
     setNewNodeTextContent("");
     setNewNodeImages([]);
@@ -56,17 +61,6 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     setWorkspaceError("");
     nodeDetailRequestRef.current += 1;
   }
-
-  function applyNotebooks(nextNotebooks: NotebookEntry[], preferredName?: string) {
-    setNotebooks(nextNotebooks);
-    const nextSelected =
-      nextNotebooks.find((notebook) => notebook.name === preferredName)?.name ?? nextNotebooks[0]?.name ?? "";
-    setSelectedNotebookName(nextSelected);
-    if (!nextSelected) {
-      setTree(EMPTY_TREE);
-    }
-  }
-
   async function handleCreateNotebook(event: FormEvent<HTMLFormElement>) {
     await createNotebookFromForm({
       applyNotebooks,
@@ -79,7 +73,6 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
       setWorkspaceSubmitting,
     });
   }
-
   async function handleCreateNode(event: FormEvent<HTMLFormElement>) {
     await createNodeFromForm({
       authApi,
@@ -136,10 +129,19 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     setWorkspaceDialog,
     setWorkspaceError,
   });
+  const notebookLifecycleActions = createNotebookLifecycleActions({
+    applyNotebooks,
+    authApi,
+    selectedNotebookName,
+    setDeletedNotebooks,
+    setWorkspaceError,
+    setWorkspaceSubmitting,
+  });
 
   return {
     handleCreateNode,
     handleCreateNotebook,
+    deletedNotebooks,
     isNodeDetailLoading,
     isWorkspaceSubmitting,
     newNodeImages,
@@ -154,6 +156,7 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     ...dialogActions,
     onConfirmDeleteNodeOnly: deleteActions.onConfirmDeleteNodeOnly,
     onConfirmDeleteSubtree: deleteActions.onConfirmDeleteSubtree,
+    ...notebookLifecycleActions,
     onPermanentDeleteNode: deleteActions.onPermanentDeleteNode,
     onPlaceTrayNode: handlePlaceTrayNode,
     onSoftDeleteNode: deleteActions.onSoftDeleteNode,
@@ -191,4 +194,5 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
       tree,
     });
   }
+
 }
