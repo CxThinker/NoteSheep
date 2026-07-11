@@ -15,8 +15,10 @@
   --line: #2f4050;
   --accent: #ffcf48;
   --accent-strong: #ef6b4a;
+  --text-accent: #ef6b4a;
   --secondary: #5ac8b8;
   --danger: #b82f48;
+  --panel-strong: color-mix(in srgb, #fffdf5 84%, #2f4050);
   --shadow: 8px 8px 0 #2f4050;
   --focus: #007a7a;
 }
@@ -28,9 +30,12 @@
   --muted: #aab2b8;
   --line: #d7f9ff;
   --accent: #47f5c7;
-  --accent-strong: #ff4fa3;
+  --accent-strong: #ff4d4d;
+  --neon-text-color: #47f5c7;
+  --text-accent: var(--neon-text-color);
   --secondary: #ffd166;
   --danger: #ff6b6b;
+  --panel-strong: color-mix(in srgb, #181b20 78%, #d7f9ff);
   --shadow: 0 0 0 1px #47f5c7, 0 0 28px rgba(71, 245, 199, 0.34);
   --focus: #ffd166;
 }
@@ -104,7 +109,7 @@ button {
 
 .eyebrow {
   margin: 0 0 4px;
-  color: var(--accent-strong);
+  color: var(--text-accent);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0;

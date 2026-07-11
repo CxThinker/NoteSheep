@@ -47,13 +47,13 @@ export function NotebookSidebar({
   return (
     <div className="notebook-sidebar-shell">
       <div className="sidebar-scroll-shell">
-        <SidebarScrollbar controls={notebookScroll} label="笔记本滚动条" targetId="notebook-sidebar-scroll" />
-        <aside aria-label="笔记本侧栏" className="notebook-sidebar" id="notebook-sidebar-scroll" onScroll={notebookScroll.syncScrollbar} ref={notebookScroll.panelRef}>
+        <SidebarScrollbar controls={notebookScroll} label={messages.shell.notebookScrollbar} targetId="notebook-sidebar-scroll" />
+        <aside aria-label={messages.shell.notebookSidebar} className="notebook-sidebar" id="notebook-sidebar-scroll" onScroll={notebookScroll.syncScrollbar} ref={notebookScroll.panelRef}>
           <NotebookList notebooks={notebooks} onCreateNotebook={onCreateNotebook} onSelectNotebook={onSelectNotebook} selectedNotebookName={selectedNotebookName} />
         </aside>
       </div>
       <div className="sidebar-scroll-shell">
-        <SidebarScrollbar controls={trayScroll} label="节点托盘滚动条" targetId="node-tray-scroll" />
+        <SidebarScrollbar controls={trayScroll} label={messages.shell.nodeTrayScrollbar} targetId="node-tray-scroll" />
         <NodeTray
           activeTab={activeTrayTab}
           disabled={isSubmitting || !selectedNotebookName}
@@ -89,7 +89,7 @@ function NotebookList({
       <button className="create-notebook-button" onClick={onCreateNotebook} type="button">
         {messages.shell.openCreateNotebook}
       </button>
-      <div aria-label="笔记本列表" className="notebook-list">
+      <div aria-label={messages.shell.notebookList} className="notebook-list">
         {notebooks.length === 0 ? <p className="empty-state">{messages.shell.emptyNotebooks}</p> : null}
         {notebooks.map((notebook) => (
           <button className="notebook-item" data-active={selectedNotebookName === notebook.name} key={notebook.name} onClick={() => onSelectNotebook(notebook.name)} type="button">

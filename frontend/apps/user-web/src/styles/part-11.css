@@ -91,7 +91,7 @@
 .node-detail-text h4,
 .node-detail-images h4 {
   margin: 0 0 28px;
-  color: var(--accent-strong);
+  color: var(--text-accent);
   font-size: clamp(1.55rem, 3.8vw, 2.35rem);
   letter-spacing: 0;
 }

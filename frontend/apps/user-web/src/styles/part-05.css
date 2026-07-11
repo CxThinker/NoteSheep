@@ -80,7 +80,7 @@
 .mind-map-root-kicker {
   width: 100%;
   margin: 0;
-  color: var(--accent-strong);
+  color: var(--text-accent);
   font-size: 0.78rem;
   font-weight: 800;
   line-height: 1.2;

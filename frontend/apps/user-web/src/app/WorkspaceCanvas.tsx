@@ -45,7 +45,7 @@ export function WorkspaceCanvas({
   workspaceZoom,
 }: WorkspaceCanvasProps) {
   return (
-    <section className="notebook-canvas" aria-label="笔记本树状图">
+    <section className="notebook-canvas" aria-label={messages.shell.notebookTree}>
       <div aria-label={messages.shell.zoomControls} className="zoom-toolbar">
         <button aria-label={messages.shell.zoomOut} className="zoom-button" disabled={workspaceZoom <= 0.5} onClick={() => onZoom(-WORKSPACE_ZOOM_STEP)} type="button">
           -

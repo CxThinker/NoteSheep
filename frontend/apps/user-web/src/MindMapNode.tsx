@@ -2,7 +2,7 @@ import { PointerEvent } from "react";
 
 import { NotebookNode } from "@notesheep/api-client";
 
-import { messages } from "./messages";
+import { formatMessage, messages } from "./messages";
 import { MindMapDropZone } from "./MindMapDropZone";
 import { DropTarget, MindMapPointerDown, NodeCreateTarget } from "./mindMapCanvasTypes";
 import { MindMapNodeLayout } from "./mindMapLayout";
@@ -41,7 +41,7 @@ export function MindMapNode({
 }: MindMapNodeProps) {
   return (
     <article
-      aria-label={layout.isRoot ? `根节点 ${node.title}` : `拖动节点 ${node.title}`}
+      aria-label={formatMessage(layout.isRoot ? messages.shell.rootNodeLabel : messages.shell.dragNodeLabel, { nodeTitle: node.title })}
       className="mind-map-node"
       data-dragging={isDragging}
       data-root={layout.isRoot}
@@ -116,7 +116,7 @@ function NodeTitle({ layout, node }: { layout: MindMapNodeLayout; node: Notebook
     <div className="node-title-row">
       <h3>{node.title}</h3>
       {layout.isRoot ? null : (
-        <span aria-label={`节点位置 ${layout.depth}-${layout.layerIndex}`} className="root-badge">
+        <span aria-label={formatMessage(messages.shell.nodePositionLabel, { position: `${layout.depth}-${layout.layerIndex}` })} className="root-badge">
           <span>{messages.shell.node}</span>
           <strong>{layout.depth}-{layout.layerIndex}</strong>
         </span>

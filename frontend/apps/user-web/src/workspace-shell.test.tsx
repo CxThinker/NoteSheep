@@ -66,6 +66,36 @@ describe("Workspace shell", () => {
     expect(currentZoom).toHaveTextContent("100%");
   });
 
+  it("changes theme, UI language, and neon text color from settings", async () => {
+    const api = makeApi();
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    fireEvent.click(await screen.findByRole("button", { name: "打开设置" }));
+    expect(screen.getByRole("dialog", { name: "设置" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "English" }));
+
+    expect(localStorage.getItem("notesheep-language")).toBe("en-US");
+    expect(document.documentElement).toHaveAttribute("lang", "en-US");
+    expect(screen.getByRole("dialog", { name: "Settings" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Neon" }));
+    fireEvent.click(screen.getByRole("button", { name: "Orange" }));
+
+    expect(localStorage.getItem("notesheep-theme")).toBe("neon");
+    expect(localStorage.getItem("notesheep-neon-text-color")).toBe("orange");
+    expect(document.documentElement).toHaveAttribute("data-theme", "neon");
+    expect(document.documentElement).toHaveAttribute("data-neon-text-color", "orange");
+    expect(document.documentElement.style.getPropertyValue("--neon-text-color")).toBe("#ff9f1c");
+    expect(screen.queryByRole("button", { name: "Purple" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "紫" })).not.toBeInTheDocument();
+  });
+
   it("calculates a full-height notebook scrollbar until the notebook column overflows", () => {
     const element = document.createElement("div");
     Object.defineProperties(element, {

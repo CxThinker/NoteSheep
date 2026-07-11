@@ -1,6 +1,6 @@
 import { DragEvent } from "react";
 
-import { messages } from "./messages";
+import { formatMessage, messages } from "./messages";
 import { DropTarget, NodeCreateTarget } from "./mindMapCanvasTypes";
 import { DropSide } from "./mindMapTree";
 
@@ -27,10 +27,11 @@ export function MindMapDropZone({
   selectedTrayNodeId,
   side,
 }: MindMapDropZoneProps) {
+  const sideLabel = side === "left" ? messages.shell.leftSide : messages.shell.rightSide;
   const label =
     kind === "child"
-      ? `给 ${nodeTitle} 添加子节点`
-      : `在 ${nodeTitle} ${side === "left" ? "左侧" : "右侧"}添加兄弟节点`;
+      ? formatMessage(messages.shell.addChildNodeLabel, { nodeTitle })
+      : formatMessage(messages.shell.addSiblingNodeLabel, { nodeTitle, side: sideLabel });
 
   return (
     <button

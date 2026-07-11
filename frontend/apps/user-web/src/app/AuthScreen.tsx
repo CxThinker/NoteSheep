@@ -42,10 +42,10 @@ export function AuthScreen({
         </div>
 
         <p className="subtitle">{messages.auth.subtitle}</p>
-        <div className="theme-switcher" aria-label="主题">
+        <div className="theme-switcher" aria-label={messages.shell.themeSelector}>
           {THEMES.map((item) => (
             <button className="theme-button" data-active={theme === item.name} key={item.name} onClick={() => onThemeChange(item.name)} type="button">
-              {item.label}
+              {item.name === "cartoon" ? messages.settings.cartoonTheme : messages.settings.neonTheme}
             </button>
           ))}
         </div>

@@ -1,0 +1,91 @@
+.settings-button {
+  display: grid;
+  width: 42px;
+  min-height: 42px;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.settings-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-group {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-group h3 {
+  margin: 0;
+  color: var(--text-accent);
+  font-size: 0.94rem;
+  letter-spacing: 0;
+}
+
+.settings-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-option,
+.settings-swatch {
+  min-height: 40px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 900;
+}
+
+.settings-option[data-active="true"] {
+  background: var(--secondary);
+  color: #101316;
+}
+
+.settings-swatches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-swatch {
+  position: relative;
+  overflow: hidden;
+  padding-left: 34px;
+  text-align: left;
+}
+
+.settings-swatch::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 16px;
+  aspect-ratio: 1;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--swatch-color);
+  transform: translateY(-50%);
+}
+
+.settings-swatch[data-active="true"] {
+  border-color: var(--swatch-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--swatch-color) 24%, transparent);
+}
+
+.settings-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1.45;
+}

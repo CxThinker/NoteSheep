@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { AuthUser } from "@notesheep/api-client";
+import { LanguageCode, NeonTextColorName, ThemeName } from "@notesheep/ui";
 
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
@@ -11,13 +12,20 @@ import { NotebookSidebar } from "./NotebookSidebar";
 import { NodeDetailDialog } from "./NodeDetailDialog";
 import { NodeDialog } from "./NodeDialog";
 import { NodeTrayTab } from "./NodeTray";
+import { SettingsDialog } from "./SettingsDialog";
 import { usePanelScrollbar } from "./usePanelScrollbar";
 import { useWorkspaceController } from "./useWorkspaceController";
 import { useWorkspaceZoom } from "./useWorkspaceZoom";
 import { WorkspaceCanvas } from "./WorkspaceCanvas";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
+  language: LanguageCode;
+  neonTextColor: NeonTextColorName;
+  onLanguageChange: (value: LanguageCode) => void;
   onLogout: () => void;
+  onNeonTextColorChange: (value: NeonTextColorName) => void;
+  onThemeChange: (value: ThemeName) => void;
+  theme: ThemeName;
   user: AuthUser;
 };
 
@@ -26,11 +34,13 @@ export function AppShell({
   handleCreateNotebook,
   isNodeDetailLoading,
   isWorkspaceSubmitting,
+  language,
   newNodeImages,
   newNodeTextContent,
   newNodeTitle,
   newNodeVoices,
   newNotebookName,
+  neonTextColor,
   nodeCreateTarget,
   nodeDetail,
   nodeDetailTarget,
@@ -38,7 +48,9 @@ export function AppShell({
   onCloseDialog,
   onConfirmDeleteNodeOnly,
   onConfirmDeleteSubtree,
+  onLanguageChange,
   onLogout,
+  onNeonTextColorChange,
   onOpenNodeDetail,
   onOpenNodeDialog,
   onOpenNotebookDialog,
@@ -46,6 +58,7 @@ export function AppShell({
   onPlaceTrayNode,
   onSelectNotebook,
   onSoftDeleteNode,
+  onThemeChange,
   onUpdateTree,
   pendingDeleteTarget,
   selectedNotebookName,
@@ -55,12 +68,14 @@ export function AppShell({
   setNewNodeVoices,
   setNewNotebookName,
   tree,
+  theme,
   user,
   workspaceDialog,
   workspaceError,
 }: AppShellProps) {
   const [activeTrayTab, setActiveTrayTab] = useState<NodeTrayTab>("free");
   const [selectedTrayNodeId, setSelectedTrayNodeId] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [trayDropTarget, setTrayDropTarget] = useState<DropTarget | null>(null);
   const notebookScroll = usePanelScrollbar(notebooks.length, ".notebook-sidebar-content");
   const trayScroll = usePanelScrollbar(
@@ -95,8 +110,11 @@ export function AppShell({
         <button className="text-action" onClick={onLogout} type="button">
           {messages.shell.logout}
         </button>
+        <button aria-label={messages.settings.open} className="settings-button" onClick={() => setSettingsOpen(true)} type="button">
+          ⚙
+        </button>
       </header>
-      <section className="workspace-frame" aria-label="工作区">
+      <section className="workspace-frame" aria-label={messages.shell.workspace}>
         <NotebookSidebar
           activeTrayTab={activeTrayTab}
           isSubmitting={isWorkspaceSubmitting}
@@ -177,6 +195,17 @@ export function AppShell({
           onCancel={onCloseDialog}
           onDeleteNodeOnly={onConfirmDeleteNodeOnly}
           onDeleteSubtree={onConfirmDeleteSubtree}
+        />
+      ) : null}
+      {settingsOpen ? (
+        <SettingsDialog
+          language={language}
+          neonTextColor={neonTextColor}
+          onClose={() => setSettingsOpen(false)}
+          onLanguageChange={onLanguageChange}
+          onNeonTextColorChange={onNeonTextColorChange}
+          onThemeChange={onThemeChange}
+          theme={theme}
         />
       ) : null}
     </main>

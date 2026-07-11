@@ -2,6 +2,8 @@ import { vi } from "vitest";
 
 import type { AuthApi, NotebookTree } from "@notesheep/api-client";
 
+import { setMessagesLanguage } from "./messages";
+
 export const emptyTree: NotebookTree = {
   rootId: null,
   nodes: [],
@@ -57,6 +59,11 @@ export function resetAppTestEnvironment() {
   vi.useRealTimers();
   localStorage.clear();
   document.documentElement.dataset.theme = "";
+  document.documentElement.dataset.language = "";
+  document.documentElement.dataset.neonTextColor = "";
+  document.documentElement.lang = "";
+  document.documentElement.style.removeProperty("--neon-text-color");
+  setMessagesLanguage("zh-CN");
   HTMLElement.prototype.setPointerCapture = vi.fn();
   HTMLElement.prototype.releasePointerCapture = vi.fn();
   MockMediaRecorder.instances = [];

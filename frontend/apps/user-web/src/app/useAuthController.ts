@@ -1,13 +1,28 @@
 import { FormEvent, useEffect, useState } from "react";
 
 import { AuthApi, AuthUser } from "@notesheep/api-client";
-import { applyTheme, readStoredTheme, storeTheme, ThemeName } from "@notesheep/ui";
+import {
+  applyLanguage,
+  applyNeonTextColor,
+  applyTheme,
+  LanguageCode,
+  NeonTextColorName,
+  readStoredLanguage,
+  readStoredNeonTextColor,
+  readStoredTheme,
+  storeLanguage,
+  storeNeonTextColor,
+  storeTheme,
+  ThemeName,
+} from "@notesheep/ui";
 
-import { messages } from "../messages";
+import { messages, setMessagesLanguage } from "../messages";
 import { AuthMode } from "./types";
 
 export function useAuthController(authApi: AuthApi) {
   const [theme, setTheme] = useState<ThemeName>(() => readStoredTheme());
+  const [language, setLanguage] = useState<LanguageCode>(() => readStoredLanguage());
+  const [neonTextColor, setNeonTextColor] = useState<NeonTextColorName>(() => readStoredNeonTextColor());
   const [mode, setMode] = useState<AuthMode>("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,10 +30,23 @@ export function useAuthController(authApi: AuthApi) {
   const [isSubmitting, setSubmitting] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
 
+  setMessagesLanguage(language);
+
   useEffect(() => {
     applyTheme(theme);
     storeTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    applyLanguage(language);
+    storeLanguage(language);
+    setMessagesLanguage(language);
+  }, [language]);
+
+  useEffect(() => {
+    applyNeonTextColor(neonTextColor);
+    storeNeonTextColor(neonTextColor);
+  }, [neonTextColor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,8 +101,12 @@ export function useAuthController(authApi: AuthApi) {
     handleLogout,
     handleSubmit,
     isSubmitting,
+    language,
     mode,
+    neonTextColor,
     password,
+    setLanguage,
+    setNeonTextColor,
     setPassword,
     setTheme,
     setUsername,
