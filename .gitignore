@@ -31,6 +31,9 @@ notes/*
 *.sqlite
 *.sqlite3
 
+# Local-only skills
+skills/structured-task-workflow/
+
 # Environment
 .env
 .env.*

@@ -43,7 +43,7 @@
 
 - `backend/`：Python 后端，采用 Clean Architecture（整洁架构）。
 - `frontend/`：React 前端 monorepo（单体多包仓库），包含用户端与管理员端。
-- `skills/`：用户已提供的 design/output skills（设计与输出规范素材）。除非用户明确要求，不要修改或删除。
+- `skills/`：用户已提供的 design/output skills（设计与输出规范素材）。除非用户明确要求，不要修改或删除；`skills/structured-task-workflow/` 及其内容只保留在本地，不提交到 Git（版本控制）。
 - `docs/`：架构说明与 ADR（Architecture Decision Record，架构决策记录）。
 - `scripts/`：本地开发与检查脚本。
 
@@ -51,7 +51,7 @@
 
 - `docs/rules/frontend-ui-rules.md`：Frontend UI And Design Rules（前端用户界面与设计规则），说明前端目录边界、组件抽取、交互布局、文案与设计素材使用规则。
 - `docs/rules/api-rules.md`：API Rules（应用程序接口规则），说明后端 Clean Architecture（整洁架构）、endpoint（接口端点）、contract（接口契约）、database/migration（数据库/迁移）、API design（接口设计）与安全边界规则。
-- `docs/rules/coding-rules.md`：Coding Rules（编码规则），说明 Small/Large Change（小/大变更）分流、TDD（测试驱动开发）、单文件 200 行限制、Python/TypeScript（类型脚本）检查、依赖、Git（版本控制）与验证命令。
+- `docs/rules/coding-rules.md`：Coding Rules（编码规则），说明 Small/Large Change（小/大变更）分流、TDD（测试驱动开发）、单文件 200 行限制（`notes/` 下用户笔记/文档除外）、Python/TypeScript（类型脚本）检查、依赖、Git（版本控制）与验证命令。
 - 当前 `docs/rules/` 目录已预留，但以上规则文件尚未补齐；若文件不存在，必须依据本文件、现有代码、配置和测试推导约束，并在 spec/plan（规格/计划）中说明缺口。
 
 ## 项目文档索引
