@@ -1,0 +1,110 @@
+﻿
+.detail-panel-toggle {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+  color: var(--accent-strong);
+  box-shadow: none;
+  font-size: 1.95rem;
+  font-weight: 900;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    opacity var(--node-detail-animation-duration) ease,
+    transform var(--node-detail-animation-duration) ease;
+}
+
+.detail-panel-toggle:hover,
+.detail-panel-toggle:focus-visible {
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+}
+
+.detail-panel-toggle:disabled {
+  cursor: not-allowed;
+}
+
+.node-detail-layout[data-transitioning="true"] .detail-panel-toggle {
+  pointer-events: none;
+}
+
+.detail-panel-toggle-cluster[data-control-active="false"] {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.86);
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    transform var(--node-detail-animation-duration) ease,
+    visibility 0s linear var(--node-detail-animation-duration);
+}
+
+.detail-panel-toggle-single {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 50px;
+  opacity: 1;
+  transform: translateY(-50%);
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    transform var(--node-detail-animation-duration) ease,
+    visibility 0s linear 0s;
+}
+
+.detail-panel-toggle-expand-images {
+  right: 14px;
+}
+
+.detail-panel-toggle-expand-text {
+  left: 14px;
+}
+
+.detail-panel-toggle-single[data-control-active="false"] {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) scale(0.86);
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    transform var(--node-detail-animation-duration) ease,
+    visibility 0s linear var(--node-detail-animation-duration);
+}
+
+.node-detail-grid-shell {
+  position: relative;
+}
+
+.node-detail-paths {
+  display: grid;
+  grid-template-columns: var(--node-detail-columns);
+  height: 88px;
+  border-bottom: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
+  transition: grid-template-columns var(--node-detail-animation-duration) ease;
+}
+
+.node-detail-paths div {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-width: 0;
+  height: 86px;
+  max-height: 86px;
+  min-height: 86px;
+  overflow: hidden;
+  padding: 16px 28px;
+  opacity: 1;
+  transition:
+    opacity var(--node-detail-animation-duration) ease,
+    max-height var(--node-detail-animation-duration) ease,
+    min-height var(--node-detail-animation-duration) ease,
+    padding var(--node-detail-animation-duration) ease,
+    visibility 0s linear 0s;
+}
+
+.node-detail-layout[data-text-open="true"][data-images-open="true"] .node-detail-paths div + div {
+  border-left: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
+}

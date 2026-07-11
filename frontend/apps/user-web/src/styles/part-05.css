@@ -1,0 +1,131 @@
+﻿.zoom-value {
+  display: grid;
+  min-width: 56px;
+  min-height: 34px;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--line) 42%, transparent);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--secondary) 18%, var(--panel));
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mind-map-shell {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.mind-map-board {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+  transform-origin: 0 0;
+}
+
+.mind-map-connectors {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.mind-map-connectors path {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: var(--line);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.mind-map-node {
+  position: absolute;
+  display: grid;
+  align-content: start;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--panel);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--line) 80%, transparent);
+  color: var(--text);
+  cursor: grab;
+  user-select: none;
+}
+
+.mind-map-node[data-root="true"] {
+  align-content: start;
+  gap: 8px;
+  border-color: transparent;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: default;
+  text-align: center;
+}
+
+.mind-map-node[data-dragging="true"] {
+  opacity: 0.42;
+}
+
+.mind-map-node h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mind-map-root-kicker {
+  width: 100%;
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.mind-map-node[data-root="true"] .node-title-row {
+  display: grid;
+  min-height: 64px;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0 22px;
+  background: var(--panel);
+}
+
+.mind-map-node[data-root="true"] h3 {
+  width: 100%;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.mind-map-drop-zone {
+  --drop-zone-offset-x: 0;
+  --drop-zone-offset-y: 0;
+  --drop-zone-scale: 1;
+  position: absolute;
+  display: block;
+  z-index: 35;
+  width: 28px;
+  height: 28px;
+  border: 2px solid color-mix(in srgb, var(--line) 38%, transparent);
+  border-radius: 50%;
+  padding: 0;
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+  cursor: pointer;
+  touch-action: none;
+  transform: translate(var(--drop-zone-offset-x), var(--drop-zone-offset-y)) scale(var(--drop-zone-scale));
+  transform-origin: center;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
