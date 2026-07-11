@@ -1,112 +1,35 @@
-export const messages = {
-  appName: "NoteSheep",
-  auth: {
-    loginTitle: "欢迎回到 NoteSheep",
-    registerTitle: "创建 NoteSheep 账号",
-    subtitle: "用本地账号进入你的灵感工作台。",
-    username: "用户名",
-    password: "密码",
-    login: "登录",
-    register: "注册",
-    switchToRegister: "创建账号",
-    switchToLogin: "已有账号，去登录",
-    shortPassword: "密码至少需要 6 个字符。",
-    submitFailed: "请求失败，请稍后重试。"
-  },
-  shell: {
-    title: "NoteSheep v1",
-    welcomePrefix: "已登录为",
-    capture: "Capture 捕捉",
-    inbox: "Inbox 收件箱",
-    threads: "Threads 主题线索",
-    logout: "退出登录",
-    notebookName: "笔记本名称",
-    openCreateNotebook: "+ 创建新笔记本",
-    createNotebookTitle: "创建新笔记本",
-    createNotebook: "创建笔记本",
-    emptyNotebooks: "暂无笔记本",
-    notebookNameRequired: "请输入笔记本名称。",
-    notebookActionFailed: "笔记本操作失败，请稍后重试。",
-    currentNotebook: "当前笔记本",
-    noNotebookSelected: "未选择笔记本",
-    chooseNotebook: "请选择或创建笔记本",
-    nodeTitle: "节点名称",
-    nodeTextContent: "文本内容",
-    nodeImages: "图片文件",
-    nodeVoices: "音频文件",
-    nodeVoiceFiles: "音频文件",
-    voiceRecorder: "现场录音",
-    startRecording: "开始录音",
-    cancelRecordingRequest: "取消请求",
-    stopRecording: "停止录音",
-    recordingPreview: "录音预览",
-    voiceRecordingIdle: "待录制",
-    voiceRecordingRequesting: "正在请求麦克风",
-    voiceRecordingActive: "正在录音",
-    voiceRecordingProcessing: "正在保存录音",
-    voiceRecordingReady: "录音已就绪",
-    voiceRecordingUnsupported: "当前浏览器不支持现场录音。",
-    voiceRecordingFailed: "录音失败，请稍后重试。",
-    voiceRecordingEmpty: "录音为空，请重新录制。",
-    microphoneRequestTimedOut: "麦克风请求超时，请检查浏览器权限提示后重试。",
-    microphonePermissionDenied: "无法访问麦克风，请检查浏览器权限。",
-    notebookDetailTitle: "笔记本详情",
-    nodeDetailTitle: "节点详情",
-    nodeDetailLoading: "正在读取节点详情...",
-    nodeDetailLoadFailed: "节点详情读取失败，请稍后重试。",
-    nodePosition: "节点位置",
-    noteFile: "Note 文件",
-    textPath: "文本路径",
-    imagePath: "图片路径",
-    textContent: "文本内容",
-    imageContent: "图片内容",
-    emptyTextContent: "暂无文本内容",
-    emptyImageContent: "暂无图片内容",
-    expandText: "展开文本",
-    collapseText: "收起文本",
-    expandImages: "展开图片",
-    collapseImages: "收起图片",
-    voiceResource: "Voice 资源",
-    imageResource: "Image 资源",
-    noAudio: "暂无音频",
-    playAudio: "播放音频",
-    audioUnsupported: "当前浏览器不支持音频播放。",
-    createNodeTitle: "创建新节点",
-    createChildNodeTitle: "添加子节点",
-    createSiblingNodeTitle: "添加兄弟节点",
-    createNode: "创建节点",
-    saveNode: "保存节点",
-    emptyNodes: "暂无节点",
-    nodeTray: "节点托盘",
-    nodeTrayTabs: "节点托盘导航",
-    freeNodes: "自由节点",
-    deletedNodes: "被删除节点",
-    emptyFreeNodes: "暂无自由节点",
-    emptyDeletedNodes: "暂无被删除节点",
-    selectTrayNode: "选择放入树中",
-    unselectTrayNode: "取消放入树中",
-    permanentDelete: "彻底删除",
-    confirmPermanentDelete: "确定要彻底删除此节点吗？此操作不可恢复。",
-    confirmDeleteLeaf: "确定要将此节点移入被删除节点吗？",
-    confirmDeleteSubtree: "此节点包含子节点，请选择处理方式。",
-    deleteSubtree: "连带删除子树",
-    deleteNodeOnly: "仅删除此节点",
-    moveToDeletedNodes: "移入被删除节点",
-    deleteNode: "删除节点",
-    nodeTitleRequired: "请输入节点名称。",
-    nodeActionFailed: "节点操作失败，请稍后重试。",
-    node: "节点",
-    rootNode: "根节点",
-    treeCycleRejected: "不能把节点移动到自己的后代下面。",
-    treeMoveRejected: "不能这样移动节点。",
-    treeUpdateFailed: "树状图保存失败，已恢复上一次结构。",
-    treeBoard: "树状图画布",
-    zoomControls: "缩放控制",
-    zoomIn: "放大",
-    zoomOut: "缩小",
-    currentZoom: "当前缩放",
-    resetZoom: "重置缩放",
-    closeDialog: "关闭",
-    cancel: "取消"
-  }
+import { LanguageCode } from "@notesheep/ui";
+
+import { enUSMessages } from "./messages.en";
+import { zhCNMessages } from "./messages.zh";
+
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepString<T[K]>;
 };
+
+export type Messages = DeepString<typeof zhCNMessages>;
+
+export const messagesByLanguage: Record<LanguageCode, Messages> = {
+  "en-US": enUSMessages,
+  "zh-CN": zhCNMessages,
+};
+
+let currentLanguage: LanguageCode = "zh-CN";
+
+export const messages = new Proxy({} as Messages, {
+  get(_target, key: keyof Messages) {
+    return messagesByLanguage[currentLanguage][key];
+  },
+});
+
+export function setMessagesLanguage(language: LanguageCode) {
+  currentLanguage = language;
+}
+
+export function getMessagesLanguage() {
+  return currentLanguage;
+}
+
+export function formatMessage(template: string, values: Record<string, string | number>) {
+  return Object.entries(values).reduce((result, [key, value]) => result.replaceAll(`{${key}}`, String(value)), template);
+}

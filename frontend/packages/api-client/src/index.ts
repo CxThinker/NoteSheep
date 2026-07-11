@@ -4,6 +4,8 @@ import type {
   AuthResponse,
   CreateNodeRequest,
   CreateNodeResponse,
+  DeletedNotebookResponse,
+  DeletedNotebooksResponse,
   FoldersResponse,
   NotebookEntry,
   NotebookNodeDetailResponse,
@@ -22,7 +24,11 @@ export interface AuthApi {
   logout(): Promise<void>;
   listFolders(): Promise<FoldersResponse>;
   listNotebooks(): Promise<NotebooksResponse>;
+  listDeletedNotebooks(): Promise<DeletedNotebooksResponse>;
   createNotebook(payload: NotebookEntry): Promise<NotebookResponse>;
+  deleteNotebook(name: string): Promise<DeletedNotebookResponse>;
+  restoreDeletedNotebook(id: string): Promise<NotebookResponse>;
+  permanentDeleteNotebook(id: string): Promise<void>;
   renameNotebook(currentName: string, payload: NotebookEntry): Promise<NotebookResponse>;
   getNotebookTree(name: string): Promise<NotebookTreeResponse>;
   getNodeDetail(notebookName: string, nodeId: string): Promise<NotebookNodeDetailResponse>;
@@ -74,11 +80,27 @@ export class HttpAuthApi implements AuthApi {
     return this.request<NotebooksResponse>("/api/notebooks");
   }
 
+  listDeletedNotebooks(): Promise<DeletedNotebooksResponse> {
+    return this.request<DeletedNotebooksResponse>("/api/notebooks/deleted");
+  }
+
   createNotebook(payload: NotebookEntry): Promise<NotebookResponse> {
     return this.request<NotebookResponse>("/api/notebooks", {
       method: "POST",
       body: JSON.stringify(payload),
     });
+  }
+
+  deleteNotebook(name: string): Promise<DeletedNotebookResponse> {
+    return this.request<DeletedNotebookResponse>(`/api/notebooks/${encodeURIComponent(name)}`, { method: "DELETE" });
+  }
+
+  restoreDeletedNotebook(id: string): Promise<NotebookResponse> {
+    return this.request<NotebookResponse>(`/api/notebooks/deleted/${encodeURIComponent(id)}/restore`, { method: "POST" });
+  }
+
+  async permanentDeleteNotebook(id: string): Promise<void> {
+    await this.request<void>(`/api/notebooks/deleted/${encodeURIComponent(id)}`, { method: "DELETE" });
   }
 
   renameNotebook(currentName: string, payload: NotebookEntry): Promise<NotebookResponse> {

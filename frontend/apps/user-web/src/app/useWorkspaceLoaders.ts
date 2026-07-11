@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 
-import { AuthApi, NotebookEntry, NotebookTree } from "@notesheep/api-client";
+import { AuthApi, DeletedNotebookEntry, NotebookEntry, NotebookTree } from "@notesheep/api-client";
 
+import { messages } from "../messages";
 import { EMPTY_TREE } from "./constants";
 
 type WorkspaceLoaderOptions = {
@@ -9,6 +10,8 @@ type WorkspaceLoaderOptions = {
   hasUser: boolean;
   onApplyNotebooks: (notebooks: NotebookEntry[]) => void;
   onClearWorkspace: () => void;
+  onDeletedNotebooksChange: (notebooks: DeletedNotebookEntry[]) => void;
+  onWorkspaceError: (message: string) => void;
   onTreeChange: (tree: NotebookTree) => void;
   selectedNotebookName: string;
 };
@@ -18,6 +21,8 @@ export function useWorkspaceLoaders({
   hasUser,
   onApplyNotebooks,
   onClearWorkspace,
+  onDeletedNotebooksChange,
+  onWorkspaceError,
   onTreeChange,
   selectedNotebookName,
 }: WorkspaceLoaderOptions) {
@@ -34,12 +39,42 @@ export function useWorkspaceLoaders({
       .listNotebooks()
       .then((response) => {
         if (!cancelled) {
+          onWorkspaceError("");
           onApplyNotebooks(response.notebooks);
         }
       })
       .catch(() => {
         if (!cancelled) {
           onClearWorkspace();
+          onWorkspaceError(messages.shell.notebookLoadFailed);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authApi, hasUser]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!hasUser) {
+      onDeletedNotebooksChange([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    authApi
+      .listDeletedNotebooks()
+      .then((response) => {
+        if (!cancelled) {
+          onDeletedNotebooksChange(response.notebooks);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          onDeletedNotebooksChange([]);
+          onWorkspaceError(messages.shell.deletedNotebookLoadFailed);
         }
       });
 
@@ -61,12 +96,14 @@ export function useWorkspaceLoaders({
       .getNotebookTree(selectedNotebookName)
       .then((response) => {
         if (!cancelled) {
+          onWorkspaceError("");
           onTreeChange(response.tree);
         }
       })
       .catch(() => {
         if (!cancelled) {
           onTreeChange(EMPTY_TREE);
+          onWorkspaceError(messages.shell.notebookTreeLoadFailed);
         }
       });
 

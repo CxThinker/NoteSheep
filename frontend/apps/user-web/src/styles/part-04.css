@@ -5,11 +5,84 @@
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--secondary) 24%, transparent);
 }
 
+.notebook-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.notebook-tab {
+  min-height: 46px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+.notebook-tab[data-active="true"] {
+  background: var(--secondary);
+  color: #101316;
+}
+
+.notebook-row,
+.deleted-notebook-row {
+  display: grid;
+  align-items: center;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 42px;
+}
+
+.notebook-row .notebook-item {
+  width: 100%;
+}
+
+.notebook-delete,
+.deleted-notebook-row button {
+  display: grid;
+  min-width: 0;
+  width: 42px;
+  min-height: 42px;
+  place-items: center;
+  border-color: color-mix(in srgb, var(--danger) 74%, var(--line));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 16%, var(--panel));
+  color: var(--danger);
+  padding: 0;
+}
+
+.deleted-notebook-section {
+  display: grid;
+  gap: 10px;
+}
+
+.deleted-notebook-row {
+  grid-template-columns: minmax(0, 1fr) 42px 42px;
+}
+
+.deleted-notebook-row span {
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deleted-notebook-row button:first-of-type {
+  border-color: color-mix(in srgb, var(--secondary) 74%, var(--line));
+  background: color-mix(in srgb, var(--secondary) 16%, var(--panel));
+  color: var(--secondary);
+}
+
 .create-notebook-button {
+  display: grid;
   width: 100%;
   min-height: 50px;
+  place-items: center;
   background: transparent;
-  text-align: left;
+  text-align: center;
 }
 
 .empty-state {

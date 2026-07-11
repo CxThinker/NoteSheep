@@ -18,6 +18,7 @@ from app.domain.notebook import (
 )
 from app.infrastructure.notebook_file_assets import NotebookFileAssetMixin
 from app.infrastructure.notebook_file_constants import IMAGE_EXTENSIONS, VOICE_EXTENSIONS
+from app.infrastructure.notebook_file_lifecycle import NotebookFileLifecycleMixin
 from app.infrastructure.notebook_file_naming import NotebookFileNamingMixin
 from app.infrastructure.notebook_file_node_delete import NotebookFileNodeDeleteMixin
 from app.infrastructure.notebook_file_node_writer import NotebookFileNodeWriterMixin
@@ -25,6 +26,7 @@ from app.infrastructure.notebook_file_tree import NotebookFileTreeMixin
 
 
 class FileNotebookRepository(
+    NotebookFileLifecycleMixin,
     NotebookFileNodeDeleteMixin,
     NotebookFileNodeWriterMixin,
     NotebookFileNamingMixin,

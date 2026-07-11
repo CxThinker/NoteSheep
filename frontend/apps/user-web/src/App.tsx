@@ -20,7 +20,19 @@ export function App({ api }: AppProps) {
   const workspace = useWorkspaceController(authApi, Boolean(auth.user));
 
   if (auth.user) {
-    return <AppShell {...workspace} onLogout={auth.handleLogout} user={auth.user} />;
+    return (
+      <AppShell
+        {...workspace}
+        language={auth.language}
+        neonTextColor={auth.neonTextColor}
+        onLanguageChange={auth.setLanguage}
+        onLogout={auth.handleLogout}
+        onNeonTextColorChange={auth.setNeonTextColor}
+        onThemeChange={auth.setTheme}
+        theme={auth.theme}
+        user={auth.user}
+      />
+    );
   }
 
   return (

@@ -45,7 +45,7 @@ export function WorkspaceCanvas({
   workspaceZoom,
 }: WorkspaceCanvasProps) {
   return (
-    <section className="notebook-canvas" aria-label="笔记本树状图">
+    <section className="notebook-canvas" aria-label={messages.shell.notebookTree}>
       <div aria-label={messages.shell.zoomControls} className="zoom-toolbar">
         <button aria-label={messages.shell.zoomOut} className="zoom-button" disabled={workspaceZoom <= 0.5} onClick={() => onZoom(-WORKSPACE_ZOOM_STEP)} type="button">
           -
@@ -60,7 +60,10 @@ export function WorkspaceCanvas({
       </div>
       <div aria-label={messages.shell.treeBoard} className="tree-board" ref={treeBoardRef}>
         {!selectedNotebookName ? (
-          <p className="empty-state">{messages.shell.chooseNotebook}</p>
+          <>
+            {!workspaceDialogOpen && workspaceError ? <p className="form-error workspace-error">{workspaceError}</p> : null}
+            <p className="empty-state">{messages.shell.chooseNotebook}</p>
+          </>
         ) : (
           <MindMapCanvas
             disabled={isSubmitting}

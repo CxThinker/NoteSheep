@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Protocol
 
 from app.domain.notebook import (
+    DeletedNotebookEntry,
     NotebookAssetFile,
     NotebookEntry,
     NotebookNode,
@@ -19,7 +20,19 @@ class NotebookRepository(Protocol):
     def list_notebooks(self) -> list[NotebookEntry]:
         ...
 
+    def list_deleted_notebooks(self) -> list[DeletedNotebookEntry]:
+        ...
+
     def create_notebook(self, name: str) -> NotebookEntry:
+        ...
+
+    def delete_notebook(self, name: str) -> DeletedNotebookEntry:
+        ...
+
+    def restore_deleted_notebook(self, deleted_id: str) -> NotebookEntry:
+        ...
+
+    def permanent_delete_notebook(self, deleted_id: str) -> None:
         ...
 
     def rename_notebook(self, current_name: str, new_name: str) -> NotebookEntry:
@@ -62,8 +75,20 @@ class NotebookService:
     def list_notebooks(self) -> list[NotebookEntry]:
         return self._notebooks.list_notebooks()
 
+    def list_deleted_notebooks(self) -> list[DeletedNotebookEntry]:
+        return self._notebooks.list_deleted_notebooks()
+
     def create_notebook(self, name: str) -> NotebookEntry:
         return self._notebooks.create_notebook(name)
+
+    def delete_notebook(self, name: str) -> DeletedNotebookEntry:
+        return self._notebooks.delete_notebook(name)
+
+    def restore_deleted_notebook(self, deleted_id: str) -> NotebookEntry:
+        return self._notebooks.restore_deleted_notebook(deleted_id)
+
+    def permanent_delete_notebook(self, deleted_id: str) -> None:
+        self._notebooks.permanent_delete_notebook(deleted_id)
 
     def rename_notebook(self, current_name: str, new_name: str) -> NotebookEntry:
         return self._notebooks.rename_notebook(current_name, new_name)

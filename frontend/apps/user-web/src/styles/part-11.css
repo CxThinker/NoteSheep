@@ -44,10 +44,6 @@
   font-weight: 900;
 }
 
-.node-detail-grid-shell > .form-error {
-  padding: 20px 24px;
-}
-
 .node-detail-body {
   position: relative;
   display: grid;
@@ -91,9 +87,13 @@
 .node-detail-text h4,
 .node-detail-images h4 {
   margin: 0 0 28px;
-  color: var(--accent-strong);
+  color: var(--text-accent);
   font-size: clamp(1.55rem, 3.8vw, 2.35rem);
   letter-spacing: 0;
+}
+
+.node-detail-text .form-error {
+  margin-bottom: 18px;
 }
 
 .node-detail-text pre {

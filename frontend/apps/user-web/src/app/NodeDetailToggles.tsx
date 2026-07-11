@@ -25,7 +25,7 @@ export function NodeDetailToggles({
     <>
       <div
         aria-hidden={!areBothPanelsOpen}
-        aria-label="详情模块收起控制"
+        aria-label={messages.shell.detailCollapseControls}
         className="detail-panel-toggle-cluster"
         data-control-active={areBothPanelsOpen}
       >

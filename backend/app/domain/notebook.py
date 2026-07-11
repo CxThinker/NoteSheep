@@ -14,6 +14,12 @@ class NotebookEntry:
 
 
 @dataclass(frozen=True)
+class DeletedNotebookEntry:
+    id: str
+    name: str
+
+
+@dataclass(frozen=True)
 class NotebookNode:
     id: str
     title: str
