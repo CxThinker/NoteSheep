@@ -47,6 +47,8 @@ export const zhCNMessages = {
     emptyNotebooks: "暂无笔记本",
     notebookNameRequired: "请输入笔记本名称。",
     notebookActionFailed: "笔记本操作失败，请稍后重试。",
+    notebookLoadFailed: "笔记本读取失败，请稍后重试。",
+    notebookTreeLoadFailed: "笔记本内容读取失败，请稍后重试。",
     currentNotebook: "当前笔记本",
     notebookScrollbar: "笔记本滚动条",
     notebookSidebar: "笔记本侧栏",

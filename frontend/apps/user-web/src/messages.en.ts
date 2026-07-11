@@ -49,6 +49,8 @@ export const enUSMessages: Messages = {
     emptyNotebooks: "No notebooks yet",
     notebookNameRequired: "Enter a notebook name.",
     notebookActionFailed: "Notebook action failed. Please try again later.",
+    notebookLoadFailed: "Failed to load notebooks. Please try again later.",
+    notebookTreeLoadFailed: "Failed to load notebook content. Please try again later.",
     currentNotebook: "Current notebook",
     notebookScrollbar: "Notebook scrollbar",
     notebookSidebar: "Notebook sidebar",

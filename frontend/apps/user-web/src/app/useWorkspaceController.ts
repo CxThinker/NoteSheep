@@ -3,11 +3,11 @@ import { FormEvent, useRef, useState } from "react";
 import { AuthApi, NotebookEntry, NotebookNodeDetail, NotebookTree } from "@notesheep/api-client";
 
 import { NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
-import { messages } from "../messages";
 import { EMPTY_TREE } from "./constants";
 import { WorkspaceDialog } from "./types";
 import { useWorkspaceDeleteController } from "./useWorkspaceDeleteController";
 import { createWorkspaceDialogActions } from "./workspaceDialogActions";
+import { createNotebookFromForm } from "./workspaceNotebookActions";
 import { createNodeFromForm } from "./workspaceNodeCreateActions";
 import { placeTrayNode } from "./workspaceTrayActions";
 import { useWorkspaceLoaders } from "./useWorkspaceLoaders";
@@ -36,6 +36,7 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     hasUser,
     onApplyNotebooks: applyNotebooks,
     onClearWorkspace: clearWorkspace,
+    onWorkspaceError: setWorkspaceError,
     onTreeChange: setTree,
     selectedNotebookName,
   });
@@ -52,6 +53,7 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     setNodeDetail(null);
     setNodeDetailLoading(false);
     setWorkspaceDialog(null);
+    setWorkspaceError("");
     nodeDetailRequestRef.current += 1;
   }
 
@@ -65,31 +67,17 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     }
   }
 
-  async function reloadNotebooks(preferredName?: string) {
-    const response = await authApi.listNotebooks();
-    applyNotebooks(response.notebooks, preferredName);
-  }
-
   async function handleCreateNotebook(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setWorkspaceError("");
-    const notebookName = newNotebookName.trim();
-    if (!notebookName) {
-      setWorkspaceError(messages.shell.notebookNameRequired);
-      return;
-    }
-
-    setWorkspaceSubmitting(true);
-    try {
-      const response = await authApi.createNotebook({ name: notebookName });
-      setNewNotebookName("");
-      setWorkspaceDialog(null);
-      await reloadNotebooks(response.notebook.name);
-    } catch (caught) {
-      setWorkspaceError(caught instanceof Error ? caught.message : messages.shell.notebookActionFailed);
-    } finally {
-      setWorkspaceSubmitting(false);
-    }
+    await createNotebookFromForm({
+      applyNotebooks,
+      authApi,
+      event,
+      newNotebookName,
+      setNewNotebookName,
+      setWorkspaceDialog,
+      setWorkspaceError,
+      setWorkspaceSubmitting,
+    });
   }
 
   async function handleCreateNode(event: FormEvent<HTMLFormElement>) {

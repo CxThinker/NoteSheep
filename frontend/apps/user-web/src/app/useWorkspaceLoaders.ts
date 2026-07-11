@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 import { AuthApi, NotebookEntry, NotebookTree } from "@notesheep/api-client";
 
+import { messages } from "../messages";
 import { EMPTY_TREE } from "./constants";
 
 type WorkspaceLoaderOptions = {
@@ -9,6 +10,7 @@ type WorkspaceLoaderOptions = {
   hasUser: boolean;
   onApplyNotebooks: (notebooks: NotebookEntry[]) => void;
   onClearWorkspace: () => void;
+  onWorkspaceError: (message: string) => void;
   onTreeChange: (tree: NotebookTree) => void;
   selectedNotebookName: string;
 };
@@ -18,6 +20,7 @@ export function useWorkspaceLoaders({
   hasUser,
   onApplyNotebooks,
   onClearWorkspace,
+  onWorkspaceError,
   onTreeChange,
   selectedNotebookName,
 }: WorkspaceLoaderOptions) {
@@ -34,12 +37,14 @@ export function useWorkspaceLoaders({
       .listNotebooks()
       .then((response) => {
         if (!cancelled) {
+          onWorkspaceError("");
           onApplyNotebooks(response.notebooks);
         }
       })
       .catch(() => {
         if (!cancelled) {
           onClearWorkspace();
+          onWorkspaceError(messages.shell.notebookLoadFailed);
         }
       });
 
@@ -61,12 +66,14 @@ export function useWorkspaceLoaders({
       .getNotebookTree(selectedNotebookName)
       .then((response) => {
         if (!cancelled) {
+          onWorkspaceError("");
           onTreeChange(response.tree);
         }
       })
       .catch(() => {
         if (!cancelled) {
           onTreeChange(EMPTY_TREE);
+          onWorkspaceError(messages.shell.notebookTreeLoadFailed);
         }
       });
 

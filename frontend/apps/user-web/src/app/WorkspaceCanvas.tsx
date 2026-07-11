@@ -60,7 +60,10 @@ export function WorkspaceCanvas({
       </div>
       <div aria-label={messages.shell.treeBoard} className="tree-board" ref={treeBoardRef}>
         {!selectedNotebookName ? (
-          <p className="empty-state">{messages.shell.chooseNotebook}</p>
+          <>
+            {!workspaceDialogOpen && workspaceError ? <p className="form-error workspace-error">{workspaceError}</p> : null}
+            <p className="empty-state">{messages.shell.chooseNotebook}</p>
+          </>
         ) : (
           <MindMapCanvas
             disabled={isSubmitting}

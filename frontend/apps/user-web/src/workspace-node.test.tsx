@@ -36,6 +36,28 @@ describe("Workspace node creation", () => {
     expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
   });
 
+  it("shows a localized error when notebook creation fails", async () => {
+    const api = makeApi({
+      createNotebook: vi.fn().mockRejectedValue(new Error("Failed to fetch")),
+      listNotebooks: vi.fn().mockResolvedValue({ notebooks: [] }),
+    });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("暂无笔记本")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "+ 创建新笔记本" }));
+    fireEvent.change(screen.getByLabelText("笔记本名称"), { target: { value: "笔记本失败" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建笔记本" }));
+
+    expect(await screen.findByText("笔记本操作失败，请稍后重试。")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
+  });
+
   it("uses the floating pen button to create a free node", async () => {
     const api = makeApi({
       getNotebookTree: vi.fn().mockResolvedValue({ tree: emptyTree })
@@ -174,6 +196,4 @@ describe("Workspace node creation", () => {
       });
     });
   });
-
-
 });

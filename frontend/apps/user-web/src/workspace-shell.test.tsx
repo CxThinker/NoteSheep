@@ -35,6 +35,36 @@ describe("Workspace shell", () => {
     expect(screen.getByLabelText("工作区")).toHaveClass("workspace-frame");
   });
 
+  it("shows a notebook load error when the notebook list cannot be read", async () => {
+    const api = makeApi({
+      listNotebooks: vi.fn().mockRejectedValue(new Error("Failed to fetch")),
+    });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByText("笔记本读取失败，请稍后重试。")).toBeInTheDocument();
+    expect(screen.getByText("暂无笔记本")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
+  });
+
+  it("shows a notebook content load error when the selected tree cannot be read", async () => {
+    const api = makeApi({
+      getNotebookTree: vi.fn().mockRejectedValue(new Error("Failed to fetch")),
+    });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "笔记本1" })).toBeInTheDocument();
+    expect(await screen.findByText("笔记本内容读取失败，请稍后重试。")).toBeInTheDocument();
+    expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
+  });
+
   it("zooms the notebook tree workspace with controls and mouse wheel", async () => {
     const api = makeApi();
     render(<App api={api} />);
