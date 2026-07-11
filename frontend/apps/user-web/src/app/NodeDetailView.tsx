@@ -87,7 +87,7 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
         />
         {isLoading ? <p className="node-detail-state">{messages.shell.nodeDetailLoading}</p> : null}
         {error ? <p className="form-error">{error}</p> : null}
-        {!isLoading && !error ? (
+        {!isLoading ? (
           <div className="node-detail-body">
             <NodeDetailText detail={detail} isTextPanelOpen={isTextPanelOpen} />
             <NodeDetailImages detail={detail} hasImages={hasImages} isImagePanelOpen={isImagePanelOpen} />

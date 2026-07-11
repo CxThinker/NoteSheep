@@ -117,6 +117,27 @@ describe("Node detail", () => {
     vi.useRealTimers();
   });
 
+  it("keeps image sections and panel toggles available when detail loading fails", async () => {
+    const api = makeApi({
+      getNodeDetail: vi.fn().mockRejectedValue(new Error("Request failed.")),
+    });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    const node = await screen.findByRole("button", { name: "拖动节点 节点一" });
+    fireEvent.pointerDown(node, { clientX: 100, clientY: 100, pointerId: 7 });
+    fireEvent.pointerUp(node, { clientX: 100, clientY: 100, pointerId: 7 });
+
+    const dialog = screen.getByRole("dialog", { name: "节点详情" });
+    expect(await within(dialog).findByText("Request failed.")).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("文本内容")).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("图片内容")).toHaveAttribute("data-panel-open", "false");
+    expect(within(dialog).getByRole("button", { name: "展开图片" })).toBeEnabled();
+  });
+
   it("opens notebook details when clicking the root node", async () => {
     const api = makeApi();
     render(<App api={api} />);
