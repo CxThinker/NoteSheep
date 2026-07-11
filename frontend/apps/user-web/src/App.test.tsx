@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { StrictMode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App, readScrollbarState } from "./App";
@@ -23,6 +24,53 @@ const treeWithNode: NotebookTree = {
   ],
   edges: [{ from: "__notesheep_notebook_root__", to: "node-1", side: "right", order: 0 }]
 };
+
+class MockMediaRecorder {
+  static instances: MockMediaRecorder[] = [];
+  static isTypeSupported = vi.fn(() => true);
+
+  mimeType: string;
+  ondataavailable: ((event: BlobEvent) => void) | null = null;
+  onstop: ((event: Event) => void) | null = null;
+  state: RecordingState = "inactive";
+
+  constructor() {
+    this.mimeType = "audio/webm";
+    MockMediaRecorder.instances.push(this);
+  }
+
+  start() {
+    this.state = "recording";
+  }
+
+  stop() {
+    this.state = "inactive";
+    this.ondataavailable?.({
+      data: new Blob(["recorded audio"], { type: this.mimeType })
+    } as BlobEvent);
+    this.onstop?.(new Event("stop"));
+  }
+}
+
+function installMediaRecorderMock() {
+  const stopTrack = vi.fn();
+  const getUserMedia = vi.fn().mockResolvedValue({
+    getTracks: () => [{ stop: stopTrack }]
+  } as unknown as MediaStream);
+
+  Object.defineProperty(navigator, "mediaDevices", {
+    configurable: true,
+    value: { getUserMedia }
+  });
+  Object.defineProperty(globalThis, "MediaRecorder", {
+    configurable: true,
+    value: MockMediaRecorder
+  });
+  URL.createObjectURL = vi.fn(() => "blob:recorded-voice");
+  URL.revokeObjectURL = vi.fn();
+
+  return { getUserMedia, stopTrack };
+}
 
 function makeApi(overrides: Partial<AuthApi> = {}): AuthApi {
   return {
@@ -66,6 +114,8 @@ describe("Auth screen", () => {
     document.documentElement.dataset.theme = "";
     HTMLElement.prototype.setPointerCapture = vi.fn();
     HTMLElement.prototype.releasePointerCapture = vi.fn();
+    MockMediaRecorder.instances = [];
+    MockMediaRecorder.isTypeSupported.mockClear();
   });
 
   it("switches between login and register modes", async () => {
@@ -363,6 +413,192 @@ describe("Auth screen", () => {
         voices: [voice]
       });
     });
+  });
+
+  it("records microphone audio and submits it as a node voice file", async () => {
+    const { getUserMedia, stopTrack } = installMediaRecorderMock();
+    const api = makeApi();
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    fireEvent.change(screen.getByLabelText("节点名称"), { target: { value: "现场录音节点" } });
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    await waitFor(() => {
+      expect(getUserMedia).toHaveBeenCalledWith({ audio: true });
+    });
+    expect(screen.getByRole("button", { name: "保存节点" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "停止录音" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("录音预览")).toBeInTheDocument();
+    });
+    expect(stopTrack).toHaveBeenCalled();
+    expect(screen.getByText(/现场录音-/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "保存节点" }));
+
+    await waitFor(() => {
+      expect(api.createNode).toHaveBeenCalledWith(
+        "笔记本1",
+        expect.objectContaining({
+          title: "现场录音节点",
+          parentId: "node-1",
+          voices: [expect.any(File)]
+        })
+      );
+    });
+  });
+
+  it("starts microphone recording under React StrictMode", async () => {
+    const { getUserMedia } = installMediaRecorderMock();
+    render(
+      <StrictMode>
+        <App api={makeApi()} />
+      </StrictMode>,
+    );
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    await waitFor(() => {
+      expect(getUserMedia).toHaveBeenCalledWith({ audio: true });
+    });
+
+    expect(await screen.findByRole("button", { name: "停止录音" })).toBeEnabled();
+  });
+
+  it("keeps file upload available when microphone permission is rejected", async () => {
+    const getUserMedia = vi.fn().mockRejectedValue(new DOMException("Denied", "NotAllowedError"));
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia }
+    });
+    Object.defineProperty(globalThis, "MediaRecorder", {
+      configurable: true,
+      value: MockMediaRecorder
+    });
+    const api = makeApi();
+    const voice = new File(["fake-audio"], "录音.mp3", { type: "audio/mpeg" });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    fireEvent.change(screen.getByLabelText("节点名称"), { target: { value: "权限失败节点" } });
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    expect(await screen.findByText("无法访问麦克风，请检查浏览器权限。")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("音频文件"), { target: { files: [voice] } });
+    fireEvent.click(screen.getByRole("button", { name: "保存节点" }));
+
+    await waitFor(() => {
+      expect(api.createNode).toHaveBeenCalledWith("笔记本1", {
+        title: "权限失败节点",
+        parentId: "node-1",
+        voices: [voice]
+      });
+    });
+  });
+
+  it("recovers when the microphone permission request stays pending", async () => {
+    const getUserMedia = vi.fn().mockImplementation(() => new Promise<MediaStream>(() => undefined));
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia }
+    });
+    Object.defineProperty(globalThis, "MediaRecorder", {
+      configurable: true,
+      value: MockMediaRecorder
+    });
+    const api = makeApi();
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    vi.useFakeTimers();
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    expect(getUserMedia).toHaveBeenCalledWith({ audio: true });
+    expect(screen.getByRole("button", { name: "保存节点" })).toBeDisabled();
+
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    expect(screen.getByText("麦克风请求超时，请检查浏览器权限提示后重试。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "开始录音" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "保存节点" })).toBeEnabled();
+    vi.useRealTimers();
+  });
+
+  it("lets the user cancel a pending microphone permission request", async () => {
+    const getUserMedia = vi.fn().mockImplementation(() => new Promise<MediaStream>(() => undefined));
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia }
+    });
+    Object.defineProperty(globalThis, "MediaRecorder", {
+      configurable: true,
+      value: MockMediaRecorder
+    });
+    render(<App api={makeApi()} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    expect(getUserMedia).toHaveBeenCalledWith({ audio: true });
+    expect(screen.getByRole("button", { name: "取消请求" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "保存节点" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "取消请求" }));
+
+    expect(screen.getByRole("button", { name: "开始录音" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "保存节点" })).toBeEnabled();
+  });
+
+  it("stops active microphone tracks when closing the node dialog", async () => {
+    const { getUserMedia, stopTrack } = installMediaRecorderMock();
+    render(<App api={makeApi()} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    expect(await screen.findByRole("button", { name: "给 节点一 添加子节点" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "给 节点一 添加子节点" }));
+    fireEvent.click(screen.getByRole("button", { name: "开始录音" }));
+
+    await waitFor(() => {
+      expect(getUserMedia).toHaveBeenCalled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "关闭" }));
+
+    expect(stopTrack).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
   });
 
   it("opens read-only node details when clicking a regular node", async () => {
