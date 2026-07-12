@@ -80,10 +80,10 @@
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
   align-items: center;
-  gap: 18px;
-  min-height: 132px;
+  gap: 14px;
+  min-height: 84px;
   border-bottom: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
-  padding: 30px 72px 30px 34px;
+  padding: 14px 72px 14px 28px;
 }
 
 .node-detail-title-row h3 {
@@ -99,7 +99,7 @@
 .node-detail-header-meta {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: 4px;
   justify-items: end;
   color: var(--text-accent);
   font-size: clamp(0.72rem, 1.25vw, 0.85rem);
