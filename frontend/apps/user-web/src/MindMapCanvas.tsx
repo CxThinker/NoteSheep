@@ -21,6 +21,7 @@ const LONG_PRESS_DRAG_DELAY_MS = 450;
 export function MindMapCanvas({
   disabled,
   error,
+  horizontalGutter,
   onCreateNodeAt,
   onDeleteNode,
   onOpenNodeDetail,
@@ -176,6 +177,7 @@ export function MindMapCanvas({
       draggedNode={draggedNode}
       dragState={dragState}
       error={localError || error}
+      horizontalGutter={horizontalGutter}
       layout={layout}
       nodeById={nodeById}
       nodeDetails={nodeDetails}

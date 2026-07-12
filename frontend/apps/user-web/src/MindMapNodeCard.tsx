@@ -2,22 +2,29 @@ import { MouseEvent, PointerEvent, SyntheticEvent, useRef, useState } from "reac
 
 import { NotebookNodeDetail } from "@notesheep/api-client";
 
-import { messages } from "./messages";
+import { formatMessage, messages } from "./messages";
 
 type MindMapNodeCardProps = {
+  createdAt?: string;
   detail: NotebookNodeDetail | null;
+  position: string;
 };
 
-export function MindMapNodeCard({ detail }: MindMapNodeCardProps) {
+export function MindMapNodeCard({ createdAt, detail, position }: MindMapNodeCardProps) {
   const textContent = detail?.textContent.trim() ?? "";
   const firstVoice = detail?.voices[0] ?? null;
 
   return (
     <div className="node-card-summary">
-      <p className="node-card-text" data-empty={!textContent}>
-        {textContent || messages.shell.emptyNodeCardText}
-      </p>
-      <NodeCardAudio audioUrl={firstVoice?.url ?? ""} />
+      <div className="node-card-meta">
+        <span aria-label={formatMessage(messages.shell.nodePositionLabel, { position })} className="root-badge">
+          <span>{messages.shell.node}</span>
+          <strong>{position}</strong>
+        </span>
+        <NodeCardAudio audioUrl={firstVoice?.url ?? ""} />
+        <time className="node-card-created">{formatCreatedAt(createdAt)}</time>
+      </div>
+      <p className="node-card-text" data-empty={!textContent}>{textContent || messages.shell.emptyNodeCardText}</p>
     </div>
   );
 }
@@ -44,7 +51,7 @@ function NodeCardAudio({ audioUrl }: { audioUrl: string }) {
   }
 
   return (
-    <div className="node-card-audio">
+    <>
       <button
         aria-label={messages.shell.playAudio}
         className="node-card-play"
@@ -58,7 +65,7 @@ function NodeCardAudio({ audioUrl }: { audioUrl: string }) {
       </button>
       <time className="node-card-duration">{hasAudio ? duration : messages.shell.noAudioDuration}</time>
       {hasAudio ? <audio onLoadedMetadata={handleLoadedMetadata} preload="metadata" ref={audioRef} src={audioUrl} /> : null}
-    </div>
+    </>
   );
 }
 
@@ -70,4 +77,12 @@ function formatDuration(duration: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = String(totalSeconds % 60).padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+function formatCreatedAt(createdAt?: string) {
+  if (!createdAt) {
+    return messages.shell.noNodeCreatedAt;
+  }
+  const normalized = createdAt.replace("T", " ");
+  return normalized.length >= 16 ? normalized.slice(0, 16) : createdAt;
 }

@@ -6,6 +6,7 @@ import { MindMapCanvas, NodeCreateTarget, NodeDetailTarget } from "../MindMapCan
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
 import { useCanvasPan } from "./useCanvasPan";
+import { useInitialRootCentering } from "./useInitialRootCentering";
 import { useNodeDetailCache } from "./useNodeDetailCache";
 
 type WorkspaceCanvasProps = {
@@ -44,6 +45,12 @@ export function WorkspaceCanvas({
   workspaceZoom,
 }: WorkspaceCanvasProps) {
   const canvasPan = useCanvasPan(treeBoardRef);
+  const rootCentering = useInitialRootCentering({
+    boardRef: treeBoardRef,
+    selectedNotebookName,
+    tree,
+    zoom: workspaceZoom,
+  });
   const nodeDetails = useNodeDetailCache({ authApi, selectedNotebookName, tree });
   return (
     <section className="notebook-canvas" aria-label={messages.shell.notebookTree}>
@@ -73,6 +80,7 @@ export function WorkspaceCanvas({
             selectedTrayNodeId={selectedTrayNodeId}
             trayDropTarget={trayDropTarget}
             tree={tree}
+            horizontalGutter={rootCentering.horizontalGutter}
             zoom={workspaceZoom}
           />
         )}

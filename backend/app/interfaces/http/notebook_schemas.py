@@ -19,6 +19,7 @@ class TreeNodeRequest(BaseModel):
     textFile: str
     voiceDir: str
     imgDir: str
+    createdAt: str | None = None
 
 
 class TreeEdgeRequest(BaseModel):

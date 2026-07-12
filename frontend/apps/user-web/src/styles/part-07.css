@@ -1,18 +1,18 @@
 ﻿
 .node-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  display: block;
+  min-width: 0;
 }
 
 .node-title-row h3 {
   min-width: 0;
   margin: 0;
   color: var(--text);
-  font-size: 1rem;
+  font-size: 1.05rem;
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .root-badge {
@@ -34,24 +34,32 @@
 .root-badge strong {
   font: inherit;
 }
-
 .node-card-summary {
   display: grid;
   min-height: 0;
-  gap: 4px;
-  margin-top: 5px;
+  gap: 10px;
+  grid-template-rows: auto minmax(0, 1fr);
+  margin-top: 12px;
+}
+
+.node-card-meta {
+  display: grid;
+  align-items: center;
+  grid-template-columns: max-content 28px 54px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
 }
 
 .node-card-text {
   display: -webkit-box;
   margin: 0;
   color: var(--text);
-  font-size: 0.7rem;
-  line-height: 1.25;
+  font-size: 0.82rem;
+  line-height: 1.38;
   overflow: hidden;
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 7;
   white-space: pre-line;
 }
 
@@ -60,20 +68,10 @@
   opacity: 0.5;
 }
 
-.node-card-audio {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
 .node-card-play {
   display: grid;
-  width: 21px;
-  min-height: 21px;
+  width: 26px;
+  min-height: 26px;
   place-items: center;
   border: 2px solid color-mix(in srgb, var(--line) 60%, transparent);
   border-radius: 999px;
@@ -90,12 +88,25 @@
 }
 
 .node-card-duration {
-  margin-left: auto;
   color: var(--muted);
-  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
 }
 
-.node-card-audio audio {
+.node-card-created {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.node-card-meta audio {
   display: none;
 }
 

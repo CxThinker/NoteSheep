@@ -34,10 +34,13 @@ describe("Mind map node card", () => {
 
     expect(await screen.findByText(/第一行正文/)).toBeInTheDocument();
     expect(screen.queryByText("note/节点一.md")).not.toBeInTheDocument();
+    expect(container.querySelector(".node-title-row .root-badge")).not.toBeInTheDocument();
+    expect(container.querySelector(".node-card-meta .root-badge")).toHaveTextContent("节点1-1");
+    expect(screen.getByText("2026-07-12 08:09")).toBeInTheDocument();
     const playButton = screen.getByRole("button", { name: "播放音频" });
     expect(playButton).toBeEnabled();
 
-    const audio = container.querySelector(".node-card-audio audio") as HTMLAudioElement;
+    const audio = container.querySelector(".node-card-meta audio") as HTMLAudioElement;
     Object.defineProperty(audio, "duration", { configurable: true, value: 65 });
     fireEvent.loadedMetadata(audio);
 

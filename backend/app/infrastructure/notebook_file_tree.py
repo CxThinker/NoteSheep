@@ -3,8 +3,10 @@
 import json
 from pathlib import Path
 
+from app.core.clock import now_beijing_iso
 from app.domain.notebook import InvalidTreeStructureError, NOTEBOOK_ROOT_ID, NodeNotFoundError, NotebookNode, NotebookTree, TreeEdge, TREE_FILENAME
 from app.infrastructure.notebook_file_constants import TREE_EDGE_SIDES
+from app.infrastructure.notebook_tree_payloads import tree_payload
 
 class NotebookFileTreeMixin:
     def _empty_tree(self) -> NotebookTree:
@@ -12,6 +14,7 @@ class NotebookFileTreeMixin:
 
     def _read_tree(self, notebook_path: Path) -> NotebookTree:
         tree_payload = json.loads((notebook_path / "note" / TREE_FILENAME).read_text(encoding="utf-8"))
+        legacy_created_at = now_beijing_iso()
         tree = NotebookTree(
             root_id=tree_payload.get("rootId"),
             nodes=[
@@ -21,6 +24,7 @@ class NotebookFileTreeMixin:
                     text_file=str(node["textFile"]),
                     voice_dir=str(node["voiceDir"]),
                     img_dir=str(node["imgDir"]),
+                    created_at=str(node.get("createdAt") or legacy_created_at),
                 )
                 for node in tree_payload.get("nodes", [])
             ],
@@ -182,34 +186,6 @@ class NotebookFileTreeMixin:
             free_node_ids=tree.free_node_ids,
             deleted_node_ids=tree.deleted_node_ids,
         )
-
-def node_payload(node: NotebookNode) -> dict[str, str]:
-    return {
-        "id": node.id,
-        "title": node.title,
-        "textFile": node.text_file,
-        "voiceDir": node.voice_dir,
-        "imgDir": node.img_dir,
-    }
-
-
-def tree_payload(tree: NotebookTree) -> dict[str, object]:
-    return {
-        "rootId": tree.root_id,
-        "nodes": [node_payload(node) for node in tree.nodes],
-        "edges": [
-            {
-                "from": edge.from_id,
-                "to": edge.to_id,
-                "side": edge.side,
-                "order": edge.order,
-            }
-            for edge in tree.edges
-        ],
-        "freeNodeIds": list(tree.free_node_ids),
-        "deletedNodeIds": list(tree.deleted_node_ids),
-    }
-
 
 def unique_state_ids(node_ids: list[str], valid_ids: set[str], message: str) -> list[str]:
     seen: set[str] = set()

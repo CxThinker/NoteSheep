@@ -21,6 +21,7 @@ export const treeWithNode: NotebookTree = {
       textFile: "节点一.md",
       voiceDir: "../voice/节点一",
       imgDir: "../img/节点一",
+      createdAt: "2026-07-12T08:09:10+08:00",
     },
   ],
   edges: [{ from: "__notesheep_notebook_root__", to: "node-1", side: "right", order: 0 }],

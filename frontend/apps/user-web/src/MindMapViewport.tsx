@@ -10,6 +10,7 @@ type MindMapViewportProps = {
   draggedNode: NotebookNode | null;
   dragState: DragState | null;
   error: string;
+  horizontalGutter: number;
   layout: MindMapLayout;
   nodeById: Map<string, NotebookNode>;
   nodeDetails: ReadonlyMap<string, NotebookNodeDetail>;
@@ -30,6 +31,7 @@ export function MindMapViewport({
   draggedNode,
   dragState,
   error,
+  horizontalGutter,
   layout,
   nodeById,
   nodeDetails,
@@ -43,8 +45,17 @@ export function MindMapViewport({
   selectedTrayNodeId,
   zoom,
 }: MindMapViewportProps) {
+  const gutter = Math.ceil(horizontalGutter);
   return (
-    <div className="mind-map-shell" style={{ height: `${Math.ceil(layout.height * zoom)}px`, width: `${Math.ceil(layout.width * zoom)}px` }}>
+    <div
+      className="mind-map-shell"
+      style={{
+        height: `${Math.ceil(layout.height * zoom)}px`,
+        paddingLeft: `${gutter}px`,
+        paddingRight: `${gutter}px`,
+        width: `${Math.ceil(layout.width * zoom)}px`,
+      }}
+    >
       <MindMapBoard
         disabled={disabled}
         dragState={dragState}

@@ -3,6 +3,7 @@
 from uuid import uuid4
 
 from app.domain.notebook import DuplicateNodeNameError, NOTEBOOK_ROOT_ID, NodeNotFoundError, NotebookTree, NotebookNode, NotebookUpload, TreeEdge
+from app.core.clock import now_beijing_iso
 from app.infrastructure.notebook_file_constants import IMAGE_EXTENSIONS, VOICE_EXTENSIONS
 
 class NotebookFileNodeWriterMixin:
@@ -41,6 +42,7 @@ class NotebookFileNodeWriterMixin:
             text_file=note_path.name,
             voice_dir=f"../voice/{node_title}",
             img_dir=f"../img/{node_title}",
+            created_at=now_beijing_iso(),
         )
         voice_dir = notebook_path / "voice" / node_title
         image_dir = notebook_path / "img" / node_title

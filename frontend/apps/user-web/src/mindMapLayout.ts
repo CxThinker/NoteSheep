@@ -30,8 +30,8 @@ export type MindMapLayout = {
   width: number;
 };
 
-const NODE_WIDTH = 180;
-const NODE_HEIGHT = 124;
+const NODE_WIDTH = 360;
+const NODE_HEIGHT = 248;
 const ROOT_WIDTH = 220;
 const ROOT_HEIGHT = 90;
 const GAP_X = 64;

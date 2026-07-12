@@ -42,6 +42,7 @@ export type MindMapPointerDown = (
 export type MindMapCanvasProps = {
   disabled: boolean;
   error: string;
+  horizontalGutter: number;
   nodeDetails: ReadonlyMap<string, NotebookNodeDetail>;
   onCreateNodeAt: (target: NodeCreateTarget) => void;
   onDeleteNode: (nodeId: string) => void;
