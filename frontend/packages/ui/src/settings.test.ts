@@ -5,8 +5,12 @@ import {
   NEON_TEXT_COLORS,
   readStoredLanguage,
   readStoredNeonTextColor,
+  readStoredNodeAudioUploadEnabled,
+  readStoredNodeDetailPathVisible,
   storeLanguage,
   storeNeonTextColor,
+  storeNodeAudioUploadEnabled,
+  storeNodeDetailPathVisible,
 } from "./index";
 
 describe("UI settings", () => {
@@ -50,6 +54,29 @@ describe("UI settings", () => {
 
     expect(root).toHaveAttribute("data-neon-text-color", "green");
     expect(root.style.getPropertyValue("--neon-text-color")).toBe("#57e389");
+  });
+
+  it("defaults feature switches to enabled", () => {
+    const storage = new MemoryStorage();
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(true);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(true);
+  });
+
+  it("stores feature switches and falls back on unknown values", () => {
+    const storage = new MemoryStorage();
+
+    storeNodeAudioUploadEnabled(false, storage);
+    storeNodeDetailPathVisible(false, storage);
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(false);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(false);
+
+    storage.setItem("notesheep-node-audio-upload-enabled", "maybe");
+    storage.setItem("notesheep-node-detail-path-visible", "maybe");
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(true);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(true);
   });
 });
 

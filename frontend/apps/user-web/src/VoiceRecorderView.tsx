@@ -8,6 +8,7 @@ import {
 } from "./voiceRecorderHelpers";
 
 type VoiceRecorderViewProps = {
+  allowFileUpload: boolean;
   canRecord: boolean;
   elapsedSeconds: number;
   error: string;
@@ -22,6 +23,7 @@ type VoiceRecorderViewProps = {
 };
 
 export function VoiceRecorderView({
+  allowFileUpload,
   canRecord,
   elapsedSeconds,
   error,
@@ -59,17 +61,19 @@ export function VoiceRecorderView({
           {messages.shell.audioUnsupported}
         </audio>
       ) : null}
-      <label>
-        <span>{messages.shell.nodeVoiceFiles}</span>
-        <input
-          accept="audio/aac,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm"
-          className="file-picker"
-          multiple
-          name="node-voices"
-          onChange={(event) => onFilesChange(Array.from(event.target.files ?? []))}
-          type="file"
-        />
-      </label>
+      {allowFileUpload ? (
+        <label>
+          <span>{messages.shell.nodeVoiceFiles}</span>
+          <input
+            accept="audio/aac,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm"
+            className="file-picker"
+            multiple
+            name="node-voices"
+            onChange={(event) => onFilesChange(Array.from(event.target.files ?? []))}
+            type="file"
+          />
+        </label>
+      ) : null}
       {files.length ? <p className="file-selection">{formatSelectedFiles(files)}</p> : null}
       {error ? <p className="form-error">{error}</p> : null}
     </section>

@@ -11,7 +11,13 @@ import type { useWorkspaceController } from "./useWorkspaceController";
 
 type WorkspaceController = ReturnType<typeof useWorkspaceController>;
 
-export function WorkspaceDialogs({ controller }: { controller: WorkspaceController }) {
+type WorkspaceDialogsProps = {
+  controller: WorkspaceController;
+  isNodeAudioUploadEnabled: boolean;
+  isNodeDetailPathVisible: boolean;
+};
+
+export function WorkspaceDialogs({ controller, isNodeAudioUploadEnabled, isNodeDetailPathVisible }: WorkspaceDialogsProps) {
   const [isNodeVoiceBusy, setNodeVoiceBusy] = useNodeVoiceBusy(controller.workspaceDialog);
   const deleteConfirmation = getDeleteConfirmation(controller);
   return (
@@ -30,6 +36,7 @@ export function WorkspaceDialogs({ controller }: { controller: WorkspaceControll
         <NodeDialog
           error={controller.workspaceError}
           images={controller.newNodeImages}
+          isAudioUploadEnabled={isNodeAudioUploadEnabled}
           isSubmitting={controller.isWorkspaceSubmitting}
           isVoiceBusy={isNodeVoiceBusy}
           nodeCreateTarget={controller.nodeCreateTarget}
@@ -49,7 +56,14 @@ export function WorkspaceDialogs({ controller }: { controller: WorkspaceControll
         <NotebookDetailDialog onClose={controller.onCloseDialog} target={controller.nodeDetailTarget} />
       ) : null}
       {controller.workspaceDialog === "node-detail" && controller.nodeDetailTarget?.kind === "node" ? (
-        <NodeDetailDialog detail={controller.nodeDetail} error={controller.workspaceError} isLoading={controller.isNodeDetailLoading} onClose={controller.onCloseDialog} target={controller.nodeDetailTarget} />
+        <NodeDetailDialog
+          detail={controller.nodeDetail}
+          error={controller.workspaceError}
+          isLoading={controller.isNodeDetailLoading}
+          isPathVisible={isNodeDetailPathVisible}
+          onClose={controller.onCloseDialog}
+          target={controller.nodeDetailTarget}
+        />
       ) : null}
       {controller.workspaceDialog === "delete-node" && controller.pendingDeleteTarget?.node ? (
         <DeleteNodeDialog

@@ -24,11 +24,15 @@ export function App({ api }: AppProps) {
       <AppShell
         {...workspace}
         authApi={authApi}
+        isNodeAudioUploadEnabled={auth.isNodeAudioUploadEnabled}
+        isNodeDetailPathVisible={auth.isNodeDetailPathVisible}
         language={auth.language}
         neonTextColor={auth.neonTextColor}
         onLanguageChange={auth.setLanguage}
         onLogout={auth.handleLogout}
         onNeonTextColorChange={auth.setNeonTextColor}
+        onNodeAudioUploadEnabledChange={auth.setNodeAudioUploadEnabled}
+        onNodeDetailPathVisibleChange={auth.setNodeDetailPathVisible}
         onThemeChange={auth.setTheme}
         theme={auth.theme}
         user={auth.user}

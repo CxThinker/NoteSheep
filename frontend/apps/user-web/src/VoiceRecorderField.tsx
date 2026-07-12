@@ -11,9 +11,13 @@ import {
   recordingStatusLabel,
   stopStream,
 } from "./voiceRecorderHelpers";
-type VoiceRecorderFieldProps = { files: File[]; onBusyChange: (busy: boolean) => void; onFilesChange: (files: File[]) => void };
-
-export function VoiceRecorderField({ files, onBusyChange, onFilesChange }: VoiceRecorderFieldProps) {
+type VoiceRecorderFieldProps = {
+  allowFileUpload: boolean;
+  files: File[];
+  onBusyChange: (busy: boolean) => void;
+  onFilesChange: (files: File[]) => void;
+};
+export function VoiceRecorderField({ allowFileUpload, files, onBusyChange, onFilesChange }: VoiceRecorderFieldProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
@@ -183,6 +187,7 @@ export function VoiceRecorderField({ files, onBusyChange, onFilesChange }: Voice
       elapsedSeconds={elapsedSeconds}
       error={error}
       files={files}
+      allowFileUpload={allowFileUpload}
       onCancelRequest={cancelRecordingRequest}
       onFilesChange={onFilesChange}
       onStartRecording={startRecording}
