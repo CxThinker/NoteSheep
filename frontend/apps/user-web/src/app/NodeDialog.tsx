@@ -9,6 +9,7 @@ import { WorkspaceDialogPanel } from "./WorkspaceDialogPanel";
 type NodeDialogProps = {
   error: string;
   images: File[];
+  isAudioUploadEnabled: boolean;
   isSubmitting: boolean;
   isVoiceBusy: boolean;
   nodeCreateTarget: NodeCreateTarget | null;
@@ -27,6 +28,7 @@ type NodeDialogProps = {
 export function NodeDialog({
   error,
   images,
+  isAudioUploadEnabled,
   isSubmitting,
   isVoiceBusy,
   nodeCreateTarget,
@@ -77,7 +79,7 @@ export function NodeDialog({
         />
       </label>
       {images.length ? <p className="file-selection">{formatSelectedFiles(images)}</p> : null}
-      <VoiceRecorderField files={voices} onBusyChange={onBusyChange} onFilesChange={onVoicesChange} />
+      <VoiceRecorderField allowFileUpload={isAudioUploadEnabled} files={voices} onBusyChange={onBusyChange} onFilesChange={onVoicesChange} />
     </WorkspaceDialogPanel>
   );
 }

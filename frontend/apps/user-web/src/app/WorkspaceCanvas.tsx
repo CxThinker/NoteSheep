@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { RefObject, type CSSProperties } from "react";
 
 import { AuthApi, NotebookTree } from "@notesheep/api-client";
 
@@ -11,6 +11,7 @@ import { useNodeDetailCache } from "./useNodeDetailCache";
 
 type WorkspaceCanvasProps = {
   authApi: AuthApi;
+  dropZoneSizePercent: number;
   isSubmitting: boolean;
   onOpenNodeDialog: (target?: NodeCreateTarget) => void;
   onOpenNodeDetail: (target: NodeDetailTarget) => void;
@@ -29,6 +30,7 @@ type WorkspaceCanvasProps = {
 
 export function WorkspaceCanvas({
   authApi,
+  dropZoneSizePercent,
   isSubmitting,
   onOpenNodeDialog,
   onOpenNodeDetail,
@@ -59,6 +61,7 @@ export function WorkspaceCanvas({
         className="tree-board"
         data-panning={canvasPan.isPanning}
         ref={treeBoardRef}
+        style={dropZoneSizeStyle(dropZoneSizePercent)}
         {...canvasPan.handlers}
       >
         {!selectedNotebookName ? (
@@ -96,4 +99,8 @@ export function WorkspaceCanvas({
       </button>
     </section>
   );
+}
+
+function dropZoneSizeStyle(sizePercent: number) {
+  return { "--drop-zone-size": `${Math.round((28 * sizePercent) / 100)}px` } as CSSProperties;
 }

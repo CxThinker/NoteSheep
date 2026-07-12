@@ -7,11 +7,17 @@ import {
   applyTheme,
   LanguageCode,
   NeonTextColorName,
+  readStoredDropZoneSizePercent,
   readStoredLanguage,
   readStoredNeonTextColor,
+  readStoredNodeAudioUploadEnabled,
+  readStoredNodeDetailPathVisible,
   readStoredTheme,
+  storeDropZoneSizePercent,
   storeLanguage,
   storeNeonTextColor,
+  storeNodeAudioUploadEnabled,
+  storeNodeDetailPathVisible,
   storeTheme,
   ThemeName,
 } from "@notesheep/ui";
@@ -23,6 +29,9 @@ export function useAuthController(authApi: AuthApi) {
   const [theme, setTheme] = useState<ThemeName>(() => readStoredTheme());
   const [language, setLanguage] = useState<LanguageCode>(() => readStoredLanguage());
   const [neonTextColor, setNeonTextColor] = useState<NeonTextColorName>(() => readStoredNeonTextColor());
+  const [isNodeAudioUploadEnabled, setNodeAudioUploadEnabled] = useState(() => readStoredNodeAudioUploadEnabled());
+  const [isNodeDetailPathVisible, setNodeDetailPathVisible] = useState(() => readStoredNodeDetailPathVisible());
+  const [dropZoneSizePercent, setDropZoneSizePercent] = useState(() => readStoredDropZoneSizePercent());
   const [mode, setMode] = useState<AuthMode>("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +56,18 @@ export function useAuthController(authApi: AuthApi) {
     applyNeonTextColor(neonTextColor);
     storeNeonTextColor(neonTextColor);
   }, [neonTextColor]);
+
+  useEffect(() => {
+    storeNodeAudioUploadEnabled(isNodeAudioUploadEnabled);
+  }, [isNodeAudioUploadEnabled]);
+
+  useEffect(() => {
+    storeNodeDetailPathVisible(isNodeDetailPathVisible);
+  }, [isNodeDetailPathVisible]);
+
+  useEffect(() => {
+    storeDropZoneSizePercent(dropZoneSizePercent);
+  }, [dropZoneSizePercent]);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,15 +119,21 @@ export function useAuthController(authApi: AuthApi) {
 
   return {
     error,
+    dropZoneSizePercent,
     handleLogout,
     handleSubmit,
+    isNodeAudioUploadEnabled,
+    isNodeDetailPathVisible,
     isSubmitting,
     language,
     mode,
     neonTextColor,
     password,
+    setDropZoneSizePercent,
     setLanguage,
     setNeonTextColor,
+    setNodeAudioUploadEnabled,
+    setNodeDetailPathVisible,
     setPassword,
     setTheme,
     setUsername,

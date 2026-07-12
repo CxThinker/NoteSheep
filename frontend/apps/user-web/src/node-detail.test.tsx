@@ -142,6 +142,29 @@ describe("Node detail", () => {
     expect(within(dialog).getByRole("button", { name: "展开图片" })).toBeEnabled();
   });
 
+  it("shows hidden path text when node detail paths are disabled", async () => {
+    const api = makeApi();
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    const node = await screen.findByRole("button", { name: "拖动节点 节点一" });
+    fireEvent.click(screen.getByRole("button", { name: "打开设置" }));
+    fireEvent.click(screen.getByRole("button", { name: "功能开关" }));
+    fireEvent.click(screen.getByLabelText("节点详情页路径是否展示"));
+    fireEvent.click(screen.getByRole("button", { name: "关闭" }));
+
+    fireEvent.pointerDown(node, { clientX: 100, clientY: 100, pointerId: 8 });
+    fireEvent.pointerUp(node, { clientX: 100, clientY: 100, pointerId: 8 });
+
+    const dialog = screen.getByRole("dialog", { name: "节点详情" });
+    expect(await within(dialog).findAllByText("已隐藏")).toHaveLength(3);
+    expect(within(dialog).queryByText("notes/笔记本1/note/节点一.md")).not.toBeInTheDocument();
+    expect(within(dialog).queryByText("notes/笔记本1/voice/节点一/")).not.toBeInTheDocument();
+  });
+
   it("opens notebook details when clicking the root node", async () => {
     const api = makeApi();
     render(<App api={api} />);

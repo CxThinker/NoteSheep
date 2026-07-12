@@ -13,10 +13,11 @@ type NodeDetailViewProps = {
   detail: NotebookNodeDetail | null;
   error: string;
   isLoading: boolean;
+  isPathVisible: boolean;
   target: Extract<NodeDetailTarget, { kind: "node" }>;
 };
 
-export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailViewProps) {
+export function NodeDetailView({ detail, error, isLoading, isPathVisible, target }: NodeDetailViewProps) {
   const hasImages = Boolean(detail?.images.length);
   const [isTextPanelOpen, setTextPanelOpen] = useState(true);
   const [isImagePanelOpen, setImagePanelOpen] = useState(hasImages);
@@ -85,6 +86,7 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
         <NodeDetailPaths
           imagePath={imagePath}
           isImagePanelOpen={isImagePanelOpen}
+          isPathVisible={isPathVisible}
           isTextPanelOpen={isTextPanelOpen}
           notePath={notePath}
         />
@@ -106,7 +108,7 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
           </div>
         ) : null}
       </div>
-      <NodeDetailAudio firstVoice={firstVoice} voicePath={voicePath} />
+      <NodeDetailAudio firstVoice={firstVoice} isPathVisible={isPathVisible} voicePath={voicePath} />
     </section>
   );
 }
@@ -122,23 +124,27 @@ function formatCreatedAt(createdAt?: string) {
 function NodeDetailPaths({
   imagePath,
   isImagePanelOpen,
+  isPathVisible,
   isTextPanelOpen,
   notePath,
 }: {
   imagePath: string;
   isImagePanelOpen: boolean;
+  isPathVisible: boolean;
   isTextPanelOpen: boolean;
   notePath: string;
 }) {
+  const textPath = isPathVisible ? notePath : messages.shell.pathHidden;
+  const imageResourcePath = isPathVisible ? imagePath : messages.shell.pathHidden;
   return (
     <div className="node-detail-paths">
       <div aria-hidden={!isTextPanelOpen} data-panel-open={isTextPanelOpen}>
         <span>{messages.shell.textPath}</span>
-        <strong>{notePath}</strong>
+        <strong>{textPath}</strong>
       </div>
       <div aria-hidden={!isImagePanelOpen} data-panel-open={isImagePanelOpen}>
         <span>{messages.shell.imagePath}</span>
-        <strong>{imagePath}</strong>
+        <strong>{imageResourcePath}</strong>
       </div>
     </div>
   );

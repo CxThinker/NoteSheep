@@ -3,10 +3,16 @@ import { describe, expect, it } from "vitest";
 import {
   applyNeonTextColor,
   NEON_TEXT_COLORS,
+  readStoredDropZoneSizePercent,
   readStoredLanguage,
   readStoredNeonTextColor,
+  readStoredNodeAudioUploadEnabled,
+  readStoredNodeDetailPathVisible,
+  storeDropZoneSizePercent,
   storeLanguage,
   storeNeonTextColor,
+  storeNodeAudioUploadEnabled,
+  storeNodeDetailPathVisible,
 } from "./index";
 
 describe("UI settings", () => {
@@ -50,6 +56,46 @@ describe("UI settings", () => {
 
     expect(root).toHaveAttribute("data-neon-text-color", "green");
     expect(root.style.getPropertyValue("--neon-text-color")).toBe("#57e389");
+  });
+
+  it("defaults feature switches to enabled", () => {
+    const storage = new MemoryStorage();
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(true);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(true);
+    expect(readStoredDropZoneSizePercent(storage)).toBe(100);
+  });
+
+  it("stores feature switches and falls back on unknown values", () => {
+    const storage = new MemoryStorage();
+
+    storeNodeAudioUploadEnabled(false, storage);
+    storeNodeDetailPathVisible(false, storage);
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(false);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(false);
+
+    storage.setItem("notesheep-node-audio-upload-enabled", "maybe");
+    storage.setItem("notesheep-node-detail-path-visible", "maybe");
+
+    expect(readStoredNodeAudioUploadEnabled(storage)).toBe(true);
+    expect(readStoredNodeDetailPathVisible(storage)).toBe(true);
+  });
+
+  it("stores drop zone size as a bounded percent", () => {
+    const storage = new MemoryStorage();
+
+    storeDropZoneSizePercent(150, storage);
+    expect(readStoredDropZoneSizePercent(storage)).toBe(150);
+
+    storeDropZoneSizePercent(20, storage);
+    expect(readStoredDropZoneSizePercent(storage)).toBe(50);
+
+    storeDropZoneSizePercent(260, storage);
+    expect(readStoredDropZoneSizePercent(storage)).toBe(200);
+
+    storage.setItem("notesheep-drop-zone-size-percent", "large");
+    expect(readStoredDropZoneSizePercent(storage)).toBe(100);
   });
 });
 

@@ -1,29 +1,32 @@
 import { useEffect, useState } from "react";
-
 import { AuthApi, AuthUser } from "@notesheep/api-client";
 import { LanguageCode, NeonTextColorName, ThemeName } from "@notesheep/ui";
-
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
 import { CollapsedSidebarRail } from "./CollapsedSidebarRail";
 import { NotebookSidebar } from "./NotebookSidebar";
 import { NodeTrayTab } from "./NodeTray";
 import { SettingsDialog } from "./SettingsDialog";
+import { ShellHeader } from "./ShellHeader";
 import { usePanelScrollbar } from "./usePanelScrollbar";
 import { useWorkspaceController } from "./useWorkspaceController";
 import { useWorkspaceZoom } from "./useWorkspaceZoom";
 import { WorkspaceCanvas } from "./WorkspaceCanvas";
 import { WorkspaceDialogs } from "./WorkspaceDialogs";
-import { UserBadge } from "./UserBadge";
-import { ZoomToolbar } from "./ZoomToolbar";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
   authApi: AuthApi;
+  dropZoneSizePercent: number;
+  isNodeAudioUploadEnabled: boolean;
+  isNodeDetailPathVisible: boolean;
   language: LanguageCode;
   neonTextColor: NeonTextColorName;
   onLanguageChange: (value: LanguageCode) => void;
   onLogout: () => void;
+  onDropZoneSizePercentChange: (value: number) => void;
   onNeonTextColorChange: (value: NeonTextColorName) => void;
+  onNodeAudioUploadEnabledChange: (value: boolean) => void;
+  onNodeDetailPathVisibleChange: (value: boolean) => void;
   onThemeChange: (value: ThemeName) => void;
   theme: ThemeName;
   user: AuthUser;
@@ -33,6 +36,8 @@ export function AppShell(props: AppShellProps) {
   const {
     deletedNotebooks,
     authApi,
+    isNodeAudioUploadEnabled,
+    isNodeDetailPathVisible,
     isWorkspaceSubmitting,
     language,
     neonTextColor,
@@ -41,6 +46,8 @@ export function AppShell(props: AppShellProps) {
     onLanguageChange,
     onLogout,
     onNeonTextColorChange,
+    onNodeAudioUploadEnabledChange,
+    onNodeDetailPathVisibleChange,
     onOpenNodeDetail,
     onOpenNodeDialog,
     onOpenNotebookDialog,
@@ -88,25 +95,7 @@ export function AppShell(props: AppShellProps) {
 
   return (
     <main className="shell-page">
-      <header className="shell-header">
-        <div className="shell-sidebar-nav">
-          <div className="shell-sidebar-nav-grid">
-            <div className="shell-brand">
-              <h1>{messages.appName}</h1>
-            </div>
-          </div>
-        </div>
-        <UserBadge username={user.username} />
-        <div className="shell-nav-actions">
-          <ZoomToolbar onZoom={zoom.updateWorkspaceZoom} onZoomReset={zoom.resetWorkspaceZoom} workspaceZoom={zoom.workspaceZoom} />
-          <button aria-label={messages.settings.open} className="settings-button" onClick={() => setSettingsOpen(true)} type="button">
-            {messages.settings.title}
-          </button>
-          <button className="text-action" onClick={onLogout} type="button">
-            {messages.shell.logout}
-          </button>
-        </div>
-      </header>
+      <ShellHeader onLogout={onLogout} onOpenSettings={() => setSettingsOpen(true)} onZoom={zoom.updateWorkspaceZoom} onZoomReset={zoom.resetWorkspaceZoom} user={user} workspaceZoom={zoom.workspaceZoom} />
       <section className="workspace-frame" aria-label={messages.shell.workspace} data-sidebar-collapsed={isSidebarCollapsed}>
         {isSidebarCollapsed ? (
           <CollapsedSidebarRail onExpand={() => setSidebarCollapsed(false)} />
@@ -140,6 +129,7 @@ export function AppShell(props: AppShellProps) {
         <WorkspaceCanvas
           isSubmitting={isWorkspaceSubmitting}
           authApi={authApi}
+          dropZoneSizePercent={props.dropZoneSizePercent}
           onOpenNodeDetail={onOpenNodeDetail}
           onOpenNodeDialog={onOpenNodeDialog}
           onPlaceTrayNode={handlePlaceTrayNode}
@@ -155,14 +145,24 @@ export function AppShell(props: AppShellProps) {
           workspaceZoom={zoom.workspaceZoom}
         />
       </section>
-      <WorkspaceDialogs controller={props} />
+      <WorkspaceDialogs
+        controller={props}
+        isNodeAudioUploadEnabled={isNodeAudioUploadEnabled}
+        isNodeDetailPathVisible={isNodeDetailPathVisible}
+      />
       {settingsOpen ? (
         <SettingsDialog
+          isNodeAudioUploadEnabled={isNodeAudioUploadEnabled}
+          isNodeDetailPathVisible={isNodeDetailPathVisible}
+          dropZoneSizePercent={props.dropZoneSizePercent}
           language={language}
           neonTextColor={neonTextColor}
           onClose={() => setSettingsOpen(false)}
           onLanguageChange={onLanguageChange}
+          onDropZoneSizePercentChange={props.onDropZoneSizePercentChange}
           onNeonTextColorChange={onNeonTextColorChange}
+          onNodeAudioUploadEnabledChange={onNodeAudioUploadEnabledChange}
+          onNodeDetailPathVisibleChange={onNodeDetailPathVisibleChange}
           onThemeChange={onThemeChange}
           theme={theme}
         />
