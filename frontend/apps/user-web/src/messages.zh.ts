@@ -24,6 +24,8 @@ export const zhCNMessages = {
     featureSwitches: "功能开关",
     nodeAudioUpload: "创建节点时的音频上传",
     nodeDetailPathVisible: "节点详情页路径是否展示",
+    dropZoneSize: "节点判定区大小",
+    dropZoneSizePreview: "节点判定区大小预览",
     neonTextColor: "霓虹文字颜色",
     neonTextColorHint: "仅影响 Neon 霓虹主题的文字强调色。",
     cartoonTheme: "Cartoon 卡通",

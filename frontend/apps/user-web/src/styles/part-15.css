@@ -1,6 +1,8 @@
 .settings-panel {
   display: grid;
   gap: 16px;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: min(560px, calc(100vh - 48px));
   width: min(720px, 100%);
 }
 
@@ -8,6 +10,7 @@
   display: grid;
   grid-template-columns: 168px minmax(0, 1fr);
   gap: 16px;
+  min-height: 0;
 }
 
 .settings-sidebar,
@@ -15,6 +18,9 @@
   display: grid;
   align-content: start;
   gap: 10px;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
 }
 
 .settings-nav-button {

@@ -7,11 +7,13 @@ import {
   applyTheme,
   LanguageCode,
   NeonTextColorName,
+  readStoredDropZoneSizePercent,
   readStoredLanguage,
   readStoredNeonTextColor,
   readStoredNodeAudioUploadEnabled,
   readStoredNodeDetailPathVisible,
   readStoredTheme,
+  storeDropZoneSizePercent,
   storeLanguage,
   storeNeonTextColor,
   storeNodeAudioUploadEnabled,
@@ -29,6 +31,7 @@ export function useAuthController(authApi: AuthApi) {
   const [neonTextColor, setNeonTextColor] = useState<NeonTextColorName>(() => readStoredNeonTextColor());
   const [isNodeAudioUploadEnabled, setNodeAudioUploadEnabled] = useState(() => readStoredNodeAudioUploadEnabled());
   const [isNodeDetailPathVisible, setNodeDetailPathVisible] = useState(() => readStoredNodeDetailPathVisible());
+  const [dropZoneSizePercent, setDropZoneSizePercent] = useState(() => readStoredDropZoneSizePercent());
   const [mode, setMode] = useState<AuthMode>("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +64,10 @@ export function useAuthController(authApi: AuthApi) {
   useEffect(() => {
     storeNodeDetailPathVisible(isNodeDetailPathVisible);
   }, [isNodeDetailPathVisible]);
+
+  useEffect(() => {
+    storeDropZoneSizePercent(dropZoneSizePercent);
+  }, [dropZoneSizePercent]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +119,7 @@ export function useAuthController(authApi: AuthApi) {
 
   return {
     error,
+    dropZoneSizePercent,
     handleLogout,
     handleSubmit,
     isNodeAudioUploadEnabled,
@@ -121,6 +129,7 @@ export function useAuthController(authApi: AuthApi) {
     mode,
     neonTextColor,
     password,
+    setDropZoneSizePercent,
     setLanguage,
     setNeonTextColor,
     setNodeAudioUploadEnabled,

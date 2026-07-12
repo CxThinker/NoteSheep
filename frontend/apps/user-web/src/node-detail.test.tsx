@@ -160,8 +160,9 @@ describe("Node detail", () => {
     fireEvent.pointerUp(node, { clientX: 100, clientY: 100, pointerId: 8 });
 
     const dialog = screen.getByRole("dialog", { name: "节点详情" });
-    expect(await within(dialog).findAllByText("已隐藏")).toHaveLength(2);
+    expect(await within(dialog).findAllByText("已隐藏")).toHaveLength(3);
     expect(within(dialog).queryByText("notes/笔记本1/note/节点一.md")).not.toBeInTheDocument();
+    expect(within(dialog).queryByText("notes/笔记本1/voice/节点一/")).not.toBeInTheDocument();
   });
 
   it("opens notebook details when clicking the root node", async () => {

@@ -13,17 +13,17 @@
 }
 
 .mind-map-drop-zone::before {
-  width: 12px;
+  width: calc(var(--drop-zone-size, 28px) * 0.42);
   height: 2px;
 }
 
 .mind-map-drop-zone::after {
   width: 2px;
-  height: 12px;
+  height: calc(var(--drop-zone-size, 28px) * 0.42);
 }
 
 .mind-map-drop-zone[data-position="bottom"] {
-  bottom: -14px;
+  bottom: calc(var(--drop-zone-size, 28px) * -0.5);
   left: 50%;
   --drop-zone-offset-x: -50%;
 }
@@ -35,15 +35,14 @@
 }
 
 .mind-map-drop-zone[data-position="left"] {
-  left: -14px;
+  left: calc(var(--drop-zone-size, 28px) * -0.5);
 }
 
 .mind-map-drop-zone[data-position="right"] {
-  right: -14px;
+  right: calc(var(--drop-zone-size, 28px) * -0.5);
 }
 
 .mind-map-drop-zone[data-active="true"] {
-  --drop-zone-scale: 2;
   z-index: 90;
   border-color: var(--accent-strong);
   background: color-mix(in srgb, var(--accent) 48%, transparent);
@@ -52,7 +51,6 @@
 
 .mind-map-drop-zone:hover,
 .mind-map-drop-zone:focus-visible {
-  --drop-zone-scale: 2;
   z-index: 90;
   border-color: var(--accent-strong);
   background: color-mix(in srgb, var(--accent) 48%, transparent);

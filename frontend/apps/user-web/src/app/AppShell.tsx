@@ -16,12 +16,14 @@ import { WorkspaceDialogs } from "./WorkspaceDialogs";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
   authApi: AuthApi;
+  dropZoneSizePercent: number;
   isNodeAudioUploadEnabled: boolean;
   isNodeDetailPathVisible: boolean;
   language: LanguageCode;
   neonTextColor: NeonTextColorName;
   onLanguageChange: (value: LanguageCode) => void;
   onLogout: () => void;
+  onDropZoneSizePercentChange: (value: number) => void;
   onNeonTextColorChange: (value: NeonTextColorName) => void;
   onNodeAudioUploadEnabledChange: (value: boolean) => void;
   onNodeDetailPathVisibleChange: (value: boolean) => void;
@@ -93,14 +95,7 @@ export function AppShell(props: AppShellProps) {
 
   return (
     <main className="shell-page">
-      <ShellHeader
-        onLogout={onLogout}
-        onOpenSettings={() => setSettingsOpen(true)}
-        onZoom={zoom.updateWorkspaceZoom}
-        onZoomReset={zoom.resetWorkspaceZoom}
-        user={user}
-        workspaceZoom={zoom.workspaceZoom}
-      />
+      <ShellHeader onLogout={onLogout} onOpenSettings={() => setSettingsOpen(true)} onZoom={zoom.updateWorkspaceZoom} onZoomReset={zoom.resetWorkspaceZoom} user={user} workspaceZoom={zoom.workspaceZoom} />
       <section className="workspace-frame" aria-label={messages.shell.workspace} data-sidebar-collapsed={isSidebarCollapsed}>
         {isSidebarCollapsed ? (
           <CollapsedSidebarRail onExpand={() => setSidebarCollapsed(false)} />
@@ -134,6 +129,7 @@ export function AppShell(props: AppShellProps) {
         <WorkspaceCanvas
           isSubmitting={isWorkspaceSubmitting}
           authApi={authApi}
+          dropZoneSizePercent={props.dropZoneSizePercent}
           onOpenNodeDetail={onOpenNodeDetail}
           onOpenNodeDialog={onOpenNodeDialog}
           onPlaceTrayNode={handlePlaceTrayNode}
@@ -158,10 +154,12 @@ export function AppShell(props: AppShellProps) {
         <SettingsDialog
           isNodeAudioUploadEnabled={isNodeAudioUploadEnabled}
           isNodeDetailPathVisible={isNodeDetailPathVisible}
+          dropZoneSizePercent={props.dropZoneSizePercent}
           language={language}
           neonTextColor={neonTextColor}
           onClose={() => setSettingsOpen(false)}
           onLanguageChange={onLanguageChange}
+          onDropZoneSizePercentChange={props.onDropZoneSizePercentChange}
           onNeonTextColorChange={onNeonTextColorChange}
           onNodeAudioUploadEnabledChange={onNodeAudioUploadEnabledChange}
           onNodeDetailPathVisibleChange={onNodeDetailPathVisibleChange}

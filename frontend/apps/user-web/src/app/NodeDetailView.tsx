@@ -108,7 +108,7 @@ export function NodeDetailView({ detail, error, isLoading, isPathVisible, target
           </div>
         ) : null}
       </div>
-      <NodeDetailAudio firstVoice={firstVoice} voicePath={voicePath} />
+      <NodeDetailAudio firstVoice={firstVoice} isPathVisible={isPathVisible} voicePath={voicePath} />
     </section>
   );
 }

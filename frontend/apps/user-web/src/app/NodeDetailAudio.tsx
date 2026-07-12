@@ -4,15 +4,16 @@ import { messages } from "../messages";
 
 type NodeDetailAudioProps = {
   firstVoice: NotebookAsset | null;
+  isPathVisible: boolean;
   voicePath: string;
 };
 
-export function NodeDetailAudio({ firstVoice, voicePath }: NodeDetailAudioProps) {
+export function NodeDetailAudio({ firstVoice, isPathVisible, voicePath }: NodeDetailAudioProps) {
   return (
     <div className="node-detail-audio">
       <div className="audio-path">
         <span>{messages.shell.voiceResource}</span>
-        <strong>{voicePath}</strong>
+        <strong>{isPathVisible ? voicePath : messages.shell.pathHidden}</strong>
       </div>
       {firstVoice ? (
         <audio controls src={firstVoice.url}>

@@ -26,6 +26,8 @@ export const enUSMessages: Messages = {
     featureSwitches: "Feature switches",
     nodeAudioUpload: "Audio upload when creating nodes",
     nodeDetailPathVisible: "Show paths on node details",
+    dropZoneSize: "Node drop zone size",
+    dropZoneSizePreview: "Node drop zone size preview",
     neonTextColor: "Neon text color",
     neonTextColorHint: "Only affects text accent color in the Neon theme.",
     cartoonTheme: "Cartoon",

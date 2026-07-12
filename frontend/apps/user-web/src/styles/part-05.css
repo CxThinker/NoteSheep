@@ -104,8 +104,8 @@
   position: absolute;
   display: block;
   z-index: 35;
-  width: 28px;
-  height: 28px;
+  width: var(--drop-zone-size, 28px);
+  height: var(--drop-zone-size, 28px);
   border: 2px solid color-mix(in srgb, var(--line) 38%, transparent);
   border-radius: 50%;
   padding: 0;
