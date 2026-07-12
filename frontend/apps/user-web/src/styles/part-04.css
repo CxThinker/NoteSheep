@@ -8,7 +8,7 @@
 .notebook-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: var(--notebook-grid-gap);
 }
 
 .notebook-tab {
@@ -31,8 +31,8 @@
 .deleted-notebook-row {
   display: grid;
   align-items: center;
-  gap: 8px;
-  grid-template-columns: minmax(0, 1fr) 42px;
+  gap: var(--notebook-grid-gap);
+  grid-template-columns: minmax(0, 1fr) var(--notebook-action-size);
 }
 
 .notebook-row .notebook-item {
@@ -43,8 +43,8 @@
 .deleted-notebook-row button {
   display: grid;
   min-width: 0;
-  width: 42px;
-  min-height: 42px;
+  width: var(--notebook-action-size);
+  min-height: var(--notebook-action-size);
   place-items: center;
   border-color: color-mix(in srgb, var(--danger) 74%, var(--line));
   border-radius: 8px;
@@ -59,7 +59,7 @@
 }
 
 .deleted-notebook-row {
-  grid-template-columns: minmax(0, 1fr) 42px 42px;
+  grid-template-columns: minmax(0, 1fr) var(--notebook-action-size) var(--notebook-action-size);
 }
 
 .deleted-notebook-row span {
@@ -76,12 +76,24 @@
   color: var(--secondary);
 }
 
+.notebook-action-row {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) var(--notebook-action-size);
+  gap: var(--notebook-grid-gap);
+}
+
+.notebook-action-row .sidebar-collapse-button {
+  width: var(--notebook-action-size);
+  min-height: var(--notebook-action-size);
+}
+
 .create-notebook-button {
   display: grid;
   width: 100%;
   min-height: 50px;
   place-items: center;
-  background: transparent;
+  background: color-mix(in srgb, var(--secondary) 18%, var(--panel));
   text-align: center;
 }
 
@@ -134,14 +146,15 @@
     linear-gradient(90deg, color-mix(in srgb, var(--line) 10%, transparent) 1px, transparent 1px);
   background-size: 32px 32px;
   background-color: color-mix(in srgb, var(--page) 94%, var(--panel));
+  cursor: grab;
   padding-top: 12px;
 }
 
+.tree-board[data-panning="true"] {
+  cursor: grabbing;
+}
+
 .zoom-toolbar {
-  position: absolute;
-  top: 16px;
-  right: 24px;
-  z-index: 40;
   display: flex;
   align-items: center;
   gap: 6px;

@@ -1,6 +1,6 @@
 import { AuthApi, DeletedNotebookEntry, NotebookEntry } from "@notesheep/api-client";
 
-import { formatMessage, messages } from "../messages";
+import { messages } from "../messages";
 
 type NotebookLifecycleContext = {
   applyNotebooks: (notebooks: NotebookEntry[], preferredName?: string) => void;
@@ -12,11 +12,7 @@ type NotebookLifecycleContext = {
 };
 
 export async function deleteNotebookFromSidebar(context: NotebookLifecycleContext, notebookName: string) {
-  const prompt = formatMessage(messages.shell.confirmDeleteNotebook, { notebookName });
-  if (!window.confirm(prompt)) {
-    return;
-  }
-  await runNotebookLifecycleAction(context, messages.shell.notebookDeleteFailed, async () => {
+  return runNotebookLifecycleAction(context, messages.shell.notebookDeleteFailed, async () => {
     await context.authApi.deleteNotebook(notebookName);
     await reloadNotebookCollections(context, context.selectedNotebookName === notebookName ? undefined : context.selectedNotebookName);
   });
@@ -30,11 +26,7 @@ export async function restoreNotebookFromTrash(context: NotebookLifecycleContext
 }
 
 export async function permanentDeleteNotebookFromTrash(context: NotebookLifecycleContext, notebook: DeletedNotebookEntry) {
-  const prompt = formatMessage(messages.shell.confirmPermanentDeleteNotebook, { notebookName: notebook.name });
-  if (!window.confirm(prompt)) {
-    return;
-  }
-  await runNotebookLifecycleAction(context, messages.shell.notebookPermanentDeleteFailed, async () => {
+  return runNotebookLifecycleAction(context, messages.shell.notebookPermanentDeleteFailed, async () => {
     await context.authApi.permanentDeleteNotebook(notebook.id);
     await reloadNotebookCollections(context, context.selectedNotebookName);
   });
@@ -49,8 +41,10 @@ async function runNotebookLifecycleAction(
   context.setWorkspaceSubmitting(true);
   try {
     await action();
+    return true;
   } catch {
     context.setWorkspaceError(failureMessage);
+    return false;
   } finally {
     context.setWorkspaceSubmitting(false);
   }

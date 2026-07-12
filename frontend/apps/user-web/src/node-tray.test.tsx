@@ -35,15 +35,19 @@ describe("Node tray", () => {
       getNotebookTree: vi.fn().mockResolvedValue({ tree: deletedTree }),
       deleteNode: vi.fn().mockResolvedValue({ tree: { ...deletedTree, nodes: [], deletedNodeIds: [] } }),
     });
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
     render(<App api={api} />);
     await login();
 
     fireEvent.click(screen.getByRole("tab", { name: "被删除节点" }));
     const tray = screen.getByRole("tabpanel", { name: "被删除节点" });
     fireEvent.click(await within(tray).findByRole("button", { name: "彻底删除 节点一" }));
+    const dialog = screen.getByRole("dialog", { name: "彻底删除节点" });
+    expect(api.deleteNode).not.toHaveBeenCalled();
+    fireEvent.click(within(dialog).getByRole("button", { name: "彻底删除" }));
 
     await waitFor(() => expect(api.deleteNode).toHaveBeenCalledWith("笔记本1", "node-1"));
+    expect(confirmSpy).not.toHaveBeenCalled();
   });
 
   it("places free nodes into the tree by pointer dragging them onto a drop zone", async () => {

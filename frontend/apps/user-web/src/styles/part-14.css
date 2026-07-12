@@ -12,6 +12,58 @@
   font-weight: 900;
 }
 
+.shell-nav-actions {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1;
+  align-items: center;
+  justify-self: end;
+  gap: 10px;
+}
+
+.shell-nav-actions .settings-button,
+.shell-nav-actions .text-action {
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 16px;
+}
+
+.shell-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  border: 2px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 8px;
+  padding: 0 12px 0 8px;
+  background: color-mix(in srgb, var(--panel) 88%, var(--secondary));
+  color: var(--text);
+  font-weight: 900;
+}
+
+.shell-user-avatar {
+  display: grid;
+  width: 30px;
+  aspect-ratio: 1;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--secondary);
+  color: #101316;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.shell-user-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .settings-panel {
   display: grid;
   gap: 16px;
