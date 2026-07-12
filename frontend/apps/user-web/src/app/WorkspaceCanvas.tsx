@@ -1,13 +1,15 @@
 import { RefObject } from "react";
 
-import { NotebookTree } from "@notesheep/api-client";
+import { AuthApi, NotebookTree } from "@notesheep/api-client";
 
 import { MindMapCanvas, NodeCreateTarget, NodeDetailTarget } from "../MindMapCanvas";
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
 import { useCanvasPan } from "./useCanvasPan";
+import { useNodeDetailCache } from "./useNodeDetailCache";
 
 type WorkspaceCanvasProps = {
+  authApi: AuthApi;
   isSubmitting: boolean;
   onOpenNodeDialog: (target?: NodeCreateTarget) => void;
   onOpenNodeDetail: (target: NodeDetailTarget) => void;
@@ -25,6 +27,7 @@ type WorkspaceCanvasProps = {
 };
 
 export function WorkspaceCanvas({
+  authApi,
   isSubmitting,
   onOpenNodeDialog,
   onOpenNodeDetail,
@@ -41,6 +44,7 @@ export function WorkspaceCanvas({
   workspaceZoom,
 }: WorkspaceCanvasProps) {
   const canvasPan = useCanvasPan(treeBoardRef);
+  const nodeDetails = useNodeDetailCache({ authApi, selectedNotebookName, tree });
   return (
     <section className="notebook-canvas" aria-label={messages.shell.notebookTree}>
       <div
@@ -64,6 +68,7 @@ export function WorkspaceCanvas({
             onOpenNodeDetail={onOpenNodeDetail}
             onPlaceTrayNode={onPlaceTrayNode}
             onTreeChange={onUpdateTree}
+            nodeDetails={nodeDetails}
             rootTitle={selectedNotebookName}
             selectedTrayNodeId={selectedTrayNodeId}
             trayDropTarget={trayDropTarget}

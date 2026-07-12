@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { AuthUser } from "@notesheep/api-client";
+import { AuthApi, AuthUser } from "@notesheep/api-client";
 import { LanguageCode, NeonTextColorName, ThemeName } from "@notesheep/ui";
 
 import { DropTarget } from "../mindMapCanvasTypes";
@@ -18,6 +18,7 @@ import { UserBadge } from "./UserBadge";
 import { ZoomToolbar } from "./ZoomToolbar";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
+  authApi: AuthApi;
   language: LanguageCode;
   neonTextColor: NeonTextColorName;
   onLanguageChange: (value: LanguageCode) => void;
@@ -31,6 +32,7 @@ type AppShellProps = ReturnType<typeof useWorkspaceController> & {
 export function AppShell(props: AppShellProps) {
   const {
     deletedNotebooks,
+    authApi,
     isWorkspaceSubmitting,
     language,
     neonTextColor,
@@ -137,6 +139,7 @@ export function AppShell(props: AppShellProps) {
         )}
         <WorkspaceCanvas
           isSubmitting={isWorkspaceSubmitting}
+          authApi={authApi}
           onOpenNodeDetail={onOpenNodeDetail}
           onOpenNodeDialog={onOpenNodeDialog}
           onPlaceTrayNode={handlePlaceTrayNode}

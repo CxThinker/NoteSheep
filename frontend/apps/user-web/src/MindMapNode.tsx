@@ -1,15 +1,17 @@
 import { PointerEvent } from "react";
 
-import { NotebookNode } from "@notesheep/api-client";
+import { NotebookNode, NotebookNodeDetail } from "@notesheep/api-client";
 
 import { formatMessage, messages } from "./messages";
 import { MindMapDropZone } from "./MindMapDropZone";
+import { MindMapNodeCard } from "./MindMapNodeCard";
 import { DropTarget, MindMapPointerDown, NodeCreateTarget } from "./mindMapCanvasTypes";
 import { MindMapNodeLayout } from "./mindMapLayout";
 import { DropSide } from "./mindMapTree";
 
 type MindMapNodeProps = {
   activeDrop: DropTarget | null;
+  detail: NotebookNodeDetail | null;
   disabled: boolean;
   isDragging: boolean;
   layout: MindMapNodeLayout;
@@ -26,6 +28,7 @@ type MindMapNodeProps = {
 
 export function MindMapNode({
   activeDrop,
+  detail,
   disabled,
   isDragging,
   layout,
@@ -55,7 +58,7 @@ export function MindMapNode({
     >
       {layout.isRoot ? <p className="mind-map-root-kicker">{messages.shell.currentNotebook}</p> : null}
       <NodeTitle layout={layout} node={node} />
-      {layout.isRoot ? null : <NodeResources node={node} />}
+      {layout.isRoot ? null : <MindMapNodeCard detail={detail} />}
       {layout.isRoot ? null : (
         <button
           aria-label={`${messages.shell.deleteNode} ${node.title}`}
@@ -122,17 +125,6 @@ function NodeTitle({ layout, node }: { layout: MindMapNodeLayout; node: Notebook
         </span>
       )}
     </div>
-  );
-}
-
-function NodeResources({ node }: { node: NotebookNode }) {
-  return (
-    <>
-      <p className="node-meta">note/{node.textFile}</p>
-      <p className="resource-row">
-        {node.voiceDir} · {node.imgDir}
-      </p>
-    </>
   );
 }
 

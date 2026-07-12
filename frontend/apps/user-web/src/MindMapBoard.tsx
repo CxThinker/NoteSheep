@@ -1,4 +1,4 @@
-import { NotebookNode } from "@notesheep/api-client";
+import { NotebookNode, NotebookNodeDetail } from "@notesheep/api-client";
 
 import { MindMapNode } from "./MindMapNode";
 import { DragState, DropTarget, MindMapPointerDown, NodeCreateTarget } from "./mindMapCanvasTypes";
@@ -10,6 +10,7 @@ type MindMapBoardProps = {
   dropTarget: DropTarget | null;
   layout: MindMapLayout;
   nodeById: Map<string, NotebookNode>;
+  nodeDetails: ReadonlyMap<string, NotebookNodeDetail>;
   onCreateNodeAt: (target: NodeCreateTarget) => void;
   onDeleteNode: (nodeId: string) => void;
   onDropTrayNode: (nodeId: string, target: DropTarget) => void;
@@ -27,6 +28,7 @@ export function MindMapBoard({
   dropTarget,
   layout,
   nodeById,
+  nodeDetails,
   onCreateNodeAt,
   onDeleteNode,
   onDropTrayNode,
@@ -55,6 +57,7 @@ export function MindMapBoard({
         return (
           <MindMapNode
             activeDrop={dropTarget}
+            detail={nodeDetails.get(node.id) ?? null}
             disabled={disabled}
             isDragging={dragState?.nodeId === node.id}
             key={node.id}
