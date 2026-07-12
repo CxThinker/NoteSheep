@@ -56,7 +56,6 @@ export function MindMapNode({
       style={nodeStyle(layout)}
       tabIndex={layout.isRoot || disabled ? -1 : 0}
     >
-      {layout.isRoot ? <p className="mind-map-root-kicker">{messages.shell.currentNotebook}</p> : null}
       <NodeTitle node={node} />
       {layout.isRoot ? null : <MindMapNodeCard createdAt={node.createdAt} detail={detail} position={`${layout.depth}-${layout.layerIndex}`} />}
       {layout.isRoot ? null : (
