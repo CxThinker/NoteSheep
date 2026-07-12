@@ -1,6 +1,6 @@
 ﻿.zoom-value {
   display: grid;
-  min-width: 56px;
+  width: calc(4ch + 24px);
   min-height: 34px;
   place-items: center;
   border: 2px solid color-mix(in srgb, var(--line) 42%, transparent);
@@ -9,6 +9,7 @@
   background: color-mix(in srgb, var(--secondary) 18%, var(--panel));
   color: var(--text);
   font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
   font-weight: 900;
   line-height: 1;
 }
