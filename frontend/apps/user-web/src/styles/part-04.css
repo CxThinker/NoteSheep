@@ -110,7 +110,7 @@
   min-height: 100%;
   grid-template-rows: 1fr;
   gap: 0;
-  padding: 46px 54px 80px;
+  padding: 5px;
 }
 
 .canvas-header {
