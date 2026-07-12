@@ -35,13 +35,68 @@
   font: inherit;
 }
 
-.node-meta,
-.resource-row {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.45;
+.node-card-summary {
+  display: grid;
+  min-height: 0;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.node-card-text {
+  display: -webkit-box;
+  margin: 0;
+  color: var(--text);
+  font-size: 0.7rem;
+  line-height: 1.25;
+  overflow: hidden;
   overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: pre-line;
+}
+
+.node-card-text[data-empty="true"] {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.node-card-audio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.node-card-play {
+  display: grid;
+  width: 21px;
+  min-height: 21px;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--line) 60%, transparent);
+  border-radius: 999px;
+  padding: 0;
+  background: color-mix(in srgb, var(--secondary) 28%, var(--panel));
+  color: var(--text);
+  font-size: 0.64rem;
+  line-height: 1;
+}
+
+.node-card-play:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.node-card-duration {
+  margin-left: auto;
+  color: var(--muted);
+  font: inherit;
+}
+
+.node-card-audio audio {
+  display: none;
 }
 
 .mind-map-delete-node {

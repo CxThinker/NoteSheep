@@ -1,4 +1,4 @@
-import { NotebookNode } from "@notesheep/api-client";
+import { NotebookNode, NotebookNodeDetail, NotebookTree } from "@notesheep/api-client";
 
 import { MindMapNodeLayout } from "./mindMapLayout";
 import { DropSide } from "./mindMapTree";
@@ -38,3 +38,19 @@ export type MindMapPointerDown = (
   node: NotebookNode,
   layout: MindMapNodeLayout,
 ) => void;
+
+export type MindMapCanvasProps = {
+  disabled: boolean;
+  error: string;
+  nodeDetails: ReadonlyMap<string, NotebookNodeDetail>;
+  onCreateNodeAt: (target: NodeCreateTarget) => void;
+  onDeleteNode: (nodeId: string) => void;
+  onOpenNodeDetail: (target: NodeDetailTarget) => void;
+  onPlaceTrayNode: (nodeId: string, target: DropTarget) => void;
+  onTreeChange: (tree: NotebookTree) => Promise<boolean>;
+  rootTitle: string;
+  selectedTrayNodeId: string | null;
+  trayDropTarget: DropTarget | null;
+  tree: NotebookTree;
+  zoom: number;
+};

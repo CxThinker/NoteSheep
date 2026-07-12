@@ -23,6 +23,7 @@ export function App({ api }: AppProps) {
     return (
       <AppShell
         {...workspace}
+        authApi={authApi}
         language={auth.language}
         neonTextColor={auth.neonTextColor}
         onLanguageChange={auth.setLanguage}

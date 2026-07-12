@@ -115,6 +115,8 @@ export const enUSMessages: Messages = {
     voiceResource: "Voice resource",
     imageResource: "Image resource",
     noAudio: "No audio",
+    emptyNodeCardText: "Empty",
+    noAudioDuration: "None",
     playAudio: "Play audio",
     audioUnsupported: "This browser does not support audio playback.",
     createNodeTitle: "Create node",

@@ -1,36 +1,20 @@
 import { PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { NotebookNode, NotebookTree } from "@notesheep/api-client";
+import { NotebookNode } from "@notesheep/api-client";
 
 import { messages } from "./messages";
-import { MindMapBoard } from "./MindMapBoard";
 import { createCanvasTree, errorMessageFor, pendingPressFromEvent, readDropTarget } from "./mindMapCanvasHelpers";
 import {
   DragState,
   DropTarget,
-  NodeCreateTarget,
-  NodeDetailTarget,
+  MindMapCanvasProps,
   PendingPress,
 } from "./mindMapCanvasTypes";
 import { layoutMindMap, MindMapNodeLayout } from "./mindMapLayout";
 import { moveNodeAsChild, moveNodeAsSibling, NOTEBOOK_ROOT_ID } from "./mindMapTree";
+import { MindMapViewport } from "./MindMapViewport";
 
 export type { NodeCreateTarget, NodeDetailTarget } from "./mindMapCanvasTypes";
-
-type MindMapCanvasProps = {
-  disabled: boolean;
-  error: string;
-  onCreateNodeAt: (target: NodeCreateTarget) => void;
-  onDeleteNode: (nodeId: string) => void;
-  onOpenNodeDetail: (target: NodeDetailTarget) => void;
-  onPlaceTrayNode: (nodeId: string, target: DropTarget) => void;
-  onTreeChange: (tree: NotebookTree) => Promise<boolean>;
-  rootTitle: string;
-  selectedTrayNodeId: string | null;
-  trayDropTarget: DropTarget | null;
-  tree: NotebookTree;
-  zoom: number;
-};
 
 const LONG_PRESS_DRAG_DELAY_MS = 450;
 
@@ -42,6 +26,7 @@ export function MindMapCanvas({
   onOpenNodeDetail,
   onPlaceTrayNode,
   onTreeChange,
+  nodeDetails,
   rootTitle,
   selectedTrayNodeId,
   trayDropTarget,
@@ -55,7 +40,7 @@ export function MindMapCanvas({
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
   const [localError, setLocalError] = useState("");
   const pendingPressRef = useRef<PendingPress | null>(null);
-  const draggedNode = dragState ? nodeById.get(dragState.nodeId) : null;
+  const draggedNode = dragState ? (nodeById.get(dragState.nodeId) ?? null) : null;
   const activeDropTarget = dragState ? dropTarget : trayDropTarget;
 
   function handlePointerDown(event: PointerEvent<HTMLElement>, node: NotebookNode, nodeLayout: MindMapNodeLayout) {
@@ -185,25 +170,24 @@ export function MindMapCanvas({
   }
 
   return (
-    <div className="mind-map-shell" style={{ height: `${Math.ceil(layout.height * zoom)}px`, width: `${Math.ceil(layout.width * zoom)}px` }}>
-      <MindMapBoard
-        disabled={disabled}
-        dragState={dragState}
-        dropTarget={activeDropTarget}
-        layout={layout}
-        nodeById={nodeById}
-        onCreateNodeAt={onCreateNodeAt}
-        onDeleteNode={onDeleteNode}
-        onDropTrayNode={handleDropTrayNode}
-        onPointerCancel={handlePointerCancel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        selectedTrayNodeId={selectedTrayNodeId}
-        zoom={zoom}
-      />
-      {dragState && draggedNode ? <div className="mind-map-drag-ghost" style={{ left: dragState.x, top: dragState.y }}>{draggedNode.title}</div> : null}
-      {localError || error ? <p className="form-error mind-map-error">{localError || error}</p> : null}
-    </div>
+    <MindMapViewport
+      activeDropTarget={activeDropTarget}
+      disabled={disabled}
+      draggedNode={draggedNode}
+      dragState={dragState}
+      error={localError || error}
+      layout={layout}
+      nodeById={nodeById}
+      nodeDetails={nodeDetails}
+      onCreateNodeAt={onCreateNodeAt}
+      onDeleteNode={onDeleteNode}
+      onDropTrayNode={handleDropTrayNode}
+      onPointerCancel={handlePointerCancel}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      selectedTrayNodeId={selectedTrayNodeId}
+      zoom={zoom}
+    />
   );
 }
