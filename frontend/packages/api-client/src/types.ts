@@ -53,6 +53,7 @@ export type NotebookNode = {
   textFile: string;
   voiceDir: string;
   imgDir: string;
+  createdAt?: string;
 };
 
 export type NotebookAsset = {

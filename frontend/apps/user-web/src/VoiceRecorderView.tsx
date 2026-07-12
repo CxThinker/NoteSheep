@@ -63,6 +63,7 @@ export function VoiceRecorderView({
         <span>{messages.shell.nodeVoiceFiles}</span>
         <input
           accept="audio/aac,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm"
+          className="file-picker"
           multiple
           name="node-voices"
           onChange={(event) => onFilesChange(Array.from(event.target.files ?? []))}

@@ -25,6 +25,7 @@ describe("Node detail", () => {
     expect(api.getNodeDetail).toHaveBeenCalledWith("笔记本1", "node-1");
     expect(within(dialog).getByText("节点")).toBeInTheDocument();
     expect(within(dialog).getByText("1-1")).toBeInTheDocument();
+    expect(within(dialog).getByText("2026-07-12 08:09")).toBeInTheDocument();
     expect(await within(dialog).findByText("notes/笔记本1/note/节点一.md")).toBeInTheDocument();
     expect(within(dialog).getByText("节点正文")).toBeInTheDocument();
     expect(within(dialog).getByText("图片路径").closest("[data-panel-open]")).toHaveAttribute(

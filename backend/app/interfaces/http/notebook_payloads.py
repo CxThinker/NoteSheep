@@ -11,6 +11,7 @@ from app.domain.notebook import (
     NotebookTree,
     TreeEdge,
 )
+from app.core.clock import now_beijing_iso
 from app.interfaces.http.notebook_schemas import TreeRequest
 
 
@@ -29,6 +30,7 @@ def node_payload(node: NotebookNode) -> dict[str, str]:
         "textFile": node.text_file,
         "voiceDir": node.voice_dir,
         "imgDir": node.img_dir,
+        "createdAt": node.created_at,
     }
 
 
@@ -71,6 +73,7 @@ def tree_from_request(tree: TreeRequest) -> NotebookTree:
                 text_file=node.textFile,
                 voice_dir=node.voiceDir,
                 img_dir=node.imgDir,
+                created_at=node.createdAt or now_beijing_iso(),
             )
             for node in tree.nodes
         ],

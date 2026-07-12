@@ -69,6 +69,7 @@ export function NodeDialog({
         <span>{messages.shell.nodeImages}</span>
         <input
           accept="image/avif,image/bmp,image/gif,image/jpeg,image/png,image/webp"
+          className="file-picker"
           multiple
           name="node-images"
           onChange={(event) => onImagesChange(Array.from(event.target.files ?? []))}

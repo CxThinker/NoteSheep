@@ -110,7 +110,7 @@
   min-height: 100%;
   grid-template-rows: 1fr;
   gap: 0;
-  padding: 46px 54px 80px;
+  padding: 5px;
 }
 
 .canvas-header {
@@ -184,7 +184,8 @@
 }
 
 .zoom-reset {
-  min-width: 58px;
+  width: calc(4ch + 24px);
+  font-variant-numeric: tabular-nums;
   padding: 0 10px;
 }
 

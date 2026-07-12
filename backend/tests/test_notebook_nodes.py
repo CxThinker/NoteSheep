@@ -1,4 +1,5 @@
 ﻿import json
+from datetime import datetime, timedelta
 from urllib.parse import quote
 
 import pytest
@@ -18,6 +19,8 @@ def test_create_node_writes_markdown_and_updates_tree(tmp_path):
     assert payload["node"]["textFile"] == "节点一.md"
     assert payload["node"]["voiceDir"] == "../voice/节点一"
     assert payload["node"]["imgDir"] == "../img/节点一"
+    assert_is_current_beijing_time(payload["node"]["createdAt"])
+    assert payload["tree"]["nodes"][0]["createdAt"] == payload["node"]["createdAt"]
     assert payload["tree"]["rootId"] == "__notesheep_notebook_root__"
     assert payload["tree"]["edges"] == []
     assert payload["tree"]["freeNodeIds"] == [payload["node"]["id"]]
@@ -27,6 +30,22 @@ def test_create_node_writes_markdown_and_updates_tree(tmp_path):
 
     tree = json.loads((notes_root / "笔记本1" / "note" / "tree.json").read_text("utf-8"))
     assert tree == payload["tree"]
+
+
+def test_legacy_node_without_created_at_returns_current_beijing_time(tmp_path):
+    client, notes_root = make_client(tmp_path)
+    login(client)
+    client.post("/api/notebooks", json={"name": "笔记本1"})
+    client.post(f"/api/notebooks/{quote('笔记本1')}/nodes", json={"title": "节点一"})
+    tree_path = notes_root / "笔记本1" / "note" / "tree.json"
+    tree = json.loads(tree_path.read_text("utf-8"))
+    tree["nodes"][0].pop("createdAt", None)
+    tree_path.write_text(json.dumps(tree, ensure_ascii=False), encoding="utf-8")
+
+    response = client.get(f"/api/notebooks/{quote('笔记本1')}/tree")
+
+    assert response.status_code == 200
+    assert_is_current_beijing_time(response.json()["tree"]["nodes"][0]["createdAt"])
 
 
 def test_create_node_accepts_multipart_title_only(tmp_path):
@@ -168,5 +187,13 @@ def test_create_node_rejects_duplicate_title(tmp_path):
 
     assert first_response.status_code == 201
     assert duplicate_response.status_code == 409
+
+
+def assert_is_current_beijing_time(value: str) -> None:
+    parsed = datetime.fromisoformat(value)
+    now = datetime.now(parsed.tzinfo)
+    assert parsed.tzinfo is not None
+    assert parsed.utcoffset() == timedelta(hours=8)
+    assert abs((now - parsed).total_seconds()) < 5
 
 

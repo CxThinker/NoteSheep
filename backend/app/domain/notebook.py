@@ -26,6 +26,7 @@ class NotebookNode:
     text_file: str
     voice_dir: str
     img_dir: str
+    created_at: str
 
 
 @dataclass(frozen=True)

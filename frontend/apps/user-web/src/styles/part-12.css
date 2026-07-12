@@ -146,7 +146,7 @@
   }
 
   .notebook-canvas {
-    padding: 28px 18px 88px;
+    padding: 5px;
   }
 
   .node-detail-panel {
@@ -166,13 +166,17 @@
   }
 
   .node-detail-title-row {
-    gap: 12px;
+    gap: 10px;
     min-height: auto;
-    padding: 28px 48px 24px 20px;
+    padding: 14px 48px 14px 20px;
   }
 
   .node-detail-position {
     justify-content: flex-start;
+  }
+
+  .node-detail-header-meta {
+    justify-items: start;
   }
 
   .node-detail-paths div + div,

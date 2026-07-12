@@ -14,6 +14,7 @@ export function createCanvasTree(tree: NotebookTree, rootTitle: string): Noteboo
     textFile: "",
     title: rootTitle,
     voiceDir: "",
+    createdAt: "",
   };
   const rootEdge =
     tree.rootId && tree.rootId !== NOTEBOOK_ROOT_ID

@@ -81,7 +81,7 @@
 .node-detail-paths {
   display: grid;
   grid-template-columns: var(--node-detail-columns);
-  height: 88px;
+  height: 56px;
   border-bottom: 2px solid color-mix(in srgb, var(--line) 70%, transparent);
   transition: grid-template-columns var(--node-detail-animation-duration) ease;
 }
@@ -89,13 +89,13 @@
 .node-detail-paths div {
   display: grid;
   align-content: center;
-  gap: 8px;
+  gap: 3px;
   min-width: 0;
-  height: 86px;
-  max-height: 86px;
-  min-height: 86px;
+  height: 54px;
+  max-height: 54px;
+  min-height: 54px;
   overflow: hidden;
-  padding: 16px 28px;
+  padding: 7px 28px;
   opacity: 1;
   transition:
     opacity var(--node-detail-animation-duration) ease,

@@ -115,6 +115,7 @@ export const zhCNMessages = {
     noAudio: "暂无音频",
     emptyNodeCardText: "空",
     noAudioDuration: "无",
+    noNodeCreatedAt: "无",
     playAudio: "播放音频",
     audioUnsupported: "当前浏览器不支持音频播放。",
     createNodeTitle: "创建新节点",

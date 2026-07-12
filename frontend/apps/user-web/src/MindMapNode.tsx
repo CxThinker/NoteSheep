@@ -56,9 +56,8 @@ export function MindMapNode({
       style={nodeStyle(layout)}
       tabIndex={layout.isRoot || disabled ? -1 : 0}
     >
-      {layout.isRoot ? <p className="mind-map-root-kicker">{messages.shell.currentNotebook}</p> : null}
-      <NodeTitle layout={layout} node={node} />
-      {layout.isRoot ? null : <MindMapNodeCard detail={detail} />}
+      <NodeTitle node={node} />
+      {layout.isRoot ? null : <MindMapNodeCard createdAt={node.createdAt} detail={detail} position={`${layout.depth}-${layout.layerIndex}`} />}
       {layout.isRoot ? null : (
         <button
           aria-label={`${messages.shell.deleteNode} ${node.title}`}
@@ -114,16 +113,10 @@ export function MindMapNode({
   );
 }
 
-function NodeTitle({ layout, node }: { layout: MindMapNodeLayout; node: NotebookNode }) {
+function NodeTitle({ node }: { node: NotebookNode }) {
   return (
     <div className="node-title-row">
       <h3>{node.title}</h3>
-      {layout.isRoot ? null : (
-        <span aria-label={formatMessage(messages.shell.nodePositionLabel, { position: `${layout.depth}-${layout.layerIndex}` })} className="root-badge">
-          <span>{messages.shell.node}</span>
-          <strong>{layout.depth}-{layout.layerIndex}</strong>
-        </span>
-      )}
     </div>
   );
 }
