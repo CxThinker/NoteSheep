@@ -23,6 +23,7 @@ describe("Canvas pan", () => {
     expect(treeBoard.querySelector(".mind-map-shell")).toHaveStyle({
       paddingLeft: "400px",
       paddingRight: "400px",
+      width: "1240px",
     });
   });
 

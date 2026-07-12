@@ -46,6 +46,7 @@ export function MindMapViewport({
   zoom,
 }: MindMapViewportProps) {
   const gutter = Math.ceil(horizontalGutter);
+  const scaledWidth = Math.ceil(layout.width * zoom);
   return (
     <div
       className="mind-map-shell"
@@ -53,7 +54,7 @@ export function MindMapViewport({
         height: `${Math.ceil(layout.height * zoom)}px`,
         paddingLeft: `${gutter}px`,
         paddingRight: `${gutter}px`,
-        width: `${Math.ceil(layout.width * zoom)}px`,
+        width: `${scaledWidth + gutter * 2}px`,
       }}
     >
       <MindMapBoard
