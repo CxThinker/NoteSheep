@@ -175,6 +175,10 @@
     justify-content: flex-start;
   }
 
+  .node-detail-header-meta {
+    justify-items: start;
+  }
+
   .node-detail-paths div + div,
   .node-detail-text + .node-detail-images {
     border-left: 0;

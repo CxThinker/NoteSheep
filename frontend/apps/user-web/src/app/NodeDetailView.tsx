@@ -73,10 +73,13 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
     >
       <div className="node-detail-title-row">
         <h3>{target.node.title}</h3>
-        <p className="node-detail-position">
-          <span>{messages.shell.node}</span>
-          <strong>{target.position}</strong>
-        </p>
+        <div className="node-detail-header-meta">
+          <p className="node-detail-position">
+            <span>{messages.shell.node}</span>
+            <strong>{target.position}</strong>
+          </p>
+          <time className="node-detail-created">{formatCreatedAt(target.node.createdAt)}</time>
+        </div>
       </div>
       <div className="node-detail-grid-shell">
         <NodeDetailPaths
@@ -106,6 +109,14 @@ export function NodeDetailView({ detail, error, isLoading, target }: NodeDetailV
       <NodeDetailAudio firstVoice={firstVoice} voicePath={voicePath} />
     </section>
   );
+}
+
+function formatCreatedAt(createdAt?: string) {
+  if (!createdAt) {
+    return messages.shell.noNodeCreatedAt;
+  }
+  const normalized = createdAt.replace("T", " ");
+  return normalized.length >= 16 ? normalized.slice(0, 16) : createdAt;
 }
 
 function NodeDetailPaths({
