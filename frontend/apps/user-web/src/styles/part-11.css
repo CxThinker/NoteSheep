@@ -15,16 +15,17 @@
 
 .node-detail-paths span,
 .audio-path span {
-  color: var(--muted);
+  color: var(--text);
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 400;
 }
 
 .node-detail-paths strong,
 .audio-path strong {
   min-width: 0;
-  color: var(--secondary);
+  color: var(--text);
   font-size: 0.95rem;
+  font-weight: 400;
 }
 
 .node-detail-paths strong {
