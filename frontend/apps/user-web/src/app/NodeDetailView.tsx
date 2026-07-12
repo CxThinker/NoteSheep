@@ -144,7 +144,6 @@ function NodeDetailText({
 }) {
   return (
     <section aria-hidden={!isTextPanelOpen} aria-label={messages.shell.textContent} className="node-detail-text" data-panel-open={isTextPanelOpen}>
-      <h4>{messages.shell.textContent}</h4>
       {error ? <p className="form-error">{error}</p> : null}
       <pre>{detail?.textContent.trim() ? detail.textContent : messages.shell.emptyTextContent}</pre>
     </section>
@@ -162,7 +161,6 @@ function NodeDetailImages({
 }) {
   return (
     <section aria-hidden={!isImagePanelOpen} aria-label={messages.shell.imageContent} className="node-detail-images" data-panel-open={isImagePanelOpen}>
-      <h4>{messages.shell.imageContent}</h4>
       {hasImages ? (
         <div className="node-detail-image-grid">
           {detail?.images.map((image) => (
