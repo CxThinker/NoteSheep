@@ -37,6 +37,45 @@ describe("Workspace shell", () => {
     expect(screen.getByLabelText("工作区")).toHaveClass("workspace-frame");
   });
 
+  it("collapses and expands the sidebar while clearing tray selection", async () => {
+    const freeNode = {
+      id: "free-1",
+      title: "自由节点",
+      textFile: "自由节点.md",
+      voiceDir: "../voice/自由节点",
+      imgDir: "../img/自由节点",
+    };
+    const api = makeApi({
+      getNotebookTree: vi.fn().mockResolvedValue({
+        tree: { ...treeWithNode, nodes: [...treeWithNode.nodes, freeNode], freeNodeIds: [freeNode.id] },
+      }),
+    });
+    render(<App api={api} />);
+
+    fireEvent.change(screen.getByLabelText("用户名"), { target: { value: "note-taker" } });
+    fireEvent.change(screen.getByLabelText("密码"), { target: { value: "secret1" } });
+    fireEvent.click(screen.getByRole("button", { name: "登录" }));
+
+    const workspace = await screen.findByLabelText("工作区");
+    const selectTrayNode = await screen.findByRole("button", { name: "选择放入树中 自由节点" });
+    fireEvent.click(selectTrayNode);
+    expect(selectTrayNode).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "收起侧栏" }));
+
+    expect(workspace).toHaveAttribute("data-sidebar-collapsed", "true");
+    expect(screen.getByRole("button", { name: "展开侧栏" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "打开笔记本 笔记本1" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "自由节点" })).not.toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "根节点 笔记本1" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "展开侧栏" }));
+
+    expect(workspace).toHaveAttribute("data-sidebar-collapsed", "false");
+    expect(await screen.findByRole("button", { name: "打开笔记本 笔记本1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "选择放入树中 自由节点" })).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("shows a notebook load error when the notebook list cannot be read", async () => {
     const api = makeApi({
       listNotebooks: vi.fn().mockRejectedValue(new Error("Failed to fetch")),

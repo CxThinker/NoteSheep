@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { formatMessage, messages } from "../messages";
+import { ConfirmDeleteDialog } from "./ConfirmDeleteDialog";
 import { DeleteNodeDialog } from "./DeleteNodeDialog";
 import { NotebookDetailDialog } from "./NotebookDetailDialog";
 import { NotebookDialog } from "./NotebookDialog";
@@ -11,6 +13,7 @@ type WorkspaceController = ReturnType<typeof useWorkspaceController>;
 
 export function WorkspaceDialogs({ controller }: { controller: WorkspaceController }) {
   const [isNodeVoiceBusy, setNodeVoiceBusy] = useNodeVoiceBusy(controller.workspaceDialog);
+  const deleteConfirmation = getDeleteConfirmation(controller);
   return (
     <>
       {controller.workspaceDialog === "notebook" ? (
@@ -58,8 +61,53 @@ export function WorkspaceDialogs({ controller }: { controller: WorkspaceControll
           onDeleteSubtree={controller.onConfirmDeleteSubtree}
         />
       ) : null}
+      {controller.workspaceDialog === "confirm-delete" && deleteConfirmation ? (
+        <ConfirmDeleteDialog
+          confirmLabel={deleteConfirmation.confirmLabel}
+          error={controller.workspaceError}
+          isSubmitting={controller.isWorkspaceSubmitting}
+          itemName={deleteConfirmation.itemName}
+          message={deleteConfirmation.message}
+          onCancel={controller.onCloseDialog}
+          onConfirm={deleteConfirmation.onConfirm}
+          title={deleteConfirmation.title}
+        />
+      ) : null}
     </>
   );
+}
+
+function getDeleteConfirmation(controller: WorkspaceController) {
+  if (controller.pendingPermanentDeleteTarget?.node) {
+    return {
+      confirmLabel: messages.shell.permanentDelete,
+      itemName: controller.pendingPermanentDeleteTarget.node.title,
+      message: messages.shell.confirmPermanentDelete,
+      onConfirm: controller.onConfirmPermanentDeleteNode,
+      title: messages.shell.confirmPermanentDeleteNodeTitle,
+    };
+  }
+  if (!controller.pendingNotebookDelete) {
+    return null;
+  }
+  if (controller.pendingNotebookDelete.kind === "delete") {
+    const notebookName = controller.pendingNotebookDelete.notebookName;
+    return {
+      confirmLabel: messages.shell.deleteNotebookAction,
+      itemName: notebookName,
+      message: formatMessage(messages.shell.confirmDeleteNotebook, { notebookName }),
+      onConfirm: controller.onConfirmNotebookDelete,
+      title: messages.shell.deleteNotebookAction,
+    };
+  }
+  const notebookName = controller.pendingNotebookDelete.notebook.name;
+  return {
+    confirmLabel: messages.shell.permanentDeleteNotebookAction,
+    itemName: notebookName,
+    message: formatMessage(messages.shell.confirmPermanentDeleteNotebook, { notebookName }),
+    onConfirm: controller.onConfirmNotebookDelete,
+    title: messages.shell.permanentDeleteNotebookAction,
+  };
 }
 
 function useNodeVoiceBusy(workspaceDialog: string | null) {

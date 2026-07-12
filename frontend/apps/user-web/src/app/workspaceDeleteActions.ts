@@ -49,16 +49,18 @@ export async function permanentDeleteNode({
   setWorkspaceError,
   setWorkspaceSubmitting,
 }: PermanentDeleteContext) {
-  if (!selectedNotebookName || !window.confirm(messages.shell.confirmPermanentDelete)) {
-    return;
+  if (!selectedNotebookName) {
+    return false;
   }
   setWorkspaceSubmitting(true);
   setWorkspaceError("");
   try {
     const response = await authApi.deleteNode(selectedNotebookName, nodeId);
     setTree(response.tree);
+    return true;
   } catch (caught) {
     setWorkspaceError(caught instanceof Error ? caught.message : messages.shell.nodeActionFailed);
+    return false;
   } finally {
     setWorkspaceSubmitting(false);
   }

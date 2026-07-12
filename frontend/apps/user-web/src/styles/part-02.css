@@ -104,6 +104,10 @@ button:focus-visible {
 }
 
 .shell-page {
+  --notebook-action-size: 50px;
+  --notebook-grid-gap: 8px;
+  --sidebar-rail-width: 18px;
+  --workspace-sidebar-column: minmax(260px, 1fr);
   display: grid;
   height: 100vh;
   min-height: 100vh;

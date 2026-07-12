@@ -27,24 +27,31 @@ export function useWorkspaceDeleteController({
   tree,
 }: DeleteControllerContext) {
   const [pendingDeleteNodeId, setPendingDeleteNodeId] = useState<string | null>(null);
+  const [pendingPermanentDeleteNodeId, setPendingPermanentDeleteNodeId] = useState<string | null>(null);
   const pendingDeleteTarget = pendingDeleteNodeId
     ? {
       hasChildren: tree.edges.some((edge) => edge.from === pendingDeleteNodeId),
       node: tree.nodes.find((node) => node.id === pendingDeleteNodeId) ?? null,
     }
     : null;
+  const pendingPermanentDeleteTarget = pendingPermanentDeleteNodeId
+    ? { node: tree.nodes.find((node) => node.id === pendingPermanentDeleteNodeId) ?? null }
+    : null;
 
   return {
     clearPendingDelete,
     onConfirmDeleteNodeOnly: () => confirmSoftDelete("node"),
+    onConfirmPermanentDeleteNode: confirmPermanentDeleteNode,
     onConfirmDeleteSubtree: () => confirmSoftDelete("subtree"),
     onPermanentDeleteNode: handlePermanentDeleteNode,
     onSoftDeleteNode: openSoftDeleteDialog,
     pendingDeleteTarget,
+    pendingPermanentDeleteTarget,
   };
 
   function clearPendingDelete() {
     setPendingDeleteNodeId(null);
+    setPendingPermanentDeleteNodeId(null);
   }
 
   function openSoftDeleteDialog(nodeId: string) {
@@ -72,14 +79,30 @@ export function useWorkspaceDeleteController({
     setWorkspaceDialog(null);
   }
 
-  async function handlePermanentDeleteNode(nodeId: string) {
-    await permanentDeleteNode({
+  function handlePermanentDeleteNode(nodeId: string) {
+    if (!selectedNotebookName) {
+      return;
+    }
+    setPendingPermanentDeleteNodeId(nodeId);
+    setWorkspaceDialog("confirm-delete");
+    setWorkspaceError("");
+  }
+
+  async function confirmPermanentDeleteNode() {
+    if (!pendingPermanentDeleteNodeId) {
+      return;
+    }
+    const deleted = await permanentDeleteNode({
       authApi,
-      nodeId,
+      nodeId: pendingPermanentDeleteNodeId,
       selectedNotebookName,
       setTree,
       setWorkspaceError,
       setWorkspaceSubmitting,
     });
+    if (deleted) {
+      setPendingPermanentDeleteNodeId(null);
+      setWorkspaceDialog(null);
+    }
   }
 }

@@ -8,7 +8,7 @@ import { useNotebookCollection } from "./useNotebookCollection";
 import { useWorkspaceDeleteController } from "./useWorkspaceDeleteController";
 import { createWorkspaceDialogActions } from "./workspaceDialogActions";
 import { createNotebookFromForm } from "./workspaceNotebookActions";
-import { createNotebookLifecycleActions } from "./workspaceNotebookLifecycleController";
+import { useNotebookLifecycleController } from "./workspaceNotebookLifecycleController";
 import { createNodeFromForm } from "./workspaceNodeCreateActions";
 import { placeTrayNode } from "./workspaceTrayActions";
 import { useWorkspaceLoaders } from "./useWorkspaceLoaders";
@@ -111,9 +111,19 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     tree,
   });
 
+  const notebookLifecycleActions = useNotebookLifecycleController({
+    applyNotebooks,
+    authApi,
+    selectedNotebookName,
+    setDeletedNotebooks,
+    setWorkspaceDialog,
+    setWorkspaceError,
+    setWorkspaceSubmitting,
+  });
   const dialogActions = createWorkspaceDialogActions({
     authApi,
     clearPendingDelete: deleteActions.clearPendingDelete,
+    clearPendingNotebookDelete: notebookLifecycleActions.clearPendingNotebookDelete,
     nodeDetailRequestRef,
     selectedNotebookName,
     setNewNodeImages,
@@ -128,14 +138,6 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     setSelectedNotebookName,
     setWorkspaceDialog,
     setWorkspaceError,
-  });
-  const notebookLifecycleActions = createNotebookLifecycleActions({
-    applyNotebooks,
-    authApi,
-    selectedNotebookName,
-    setDeletedNotebooks,
-    setWorkspaceError,
-    setWorkspaceSubmitting,
   });
 
   return {
@@ -155,6 +157,7 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     notebooks,
     ...dialogActions,
     onConfirmDeleteNodeOnly: deleteActions.onConfirmDeleteNodeOnly,
+    onConfirmPermanentDeleteNode: deleteActions.onConfirmPermanentDeleteNode,
     onConfirmDeleteSubtree: deleteActions.onConfirmDeleteSubtree,
     ...notebookLifecycleActions,
     onPermanentDeleteNode: deleteActions.onPermanentDeleteNode,
@@ -162,6 +165,7 @@ export function useWorkspaceController(authApi: AuthApi, hasUser: boolean) {
     onSoftDeleteNode: deleteActions.onSoftDeleteNode,
     onUpdateTree: handleUpdateTree,
     pendingDeleteTarget: deleteActions.pendingDeleteTarget,
+    pendingPermanentDeleteTarget: deleteActions.pendingPermanentDeleteTarget,
     selectedNotebookName,
     setNewNodeImages,
     setNewNodeTextContent,

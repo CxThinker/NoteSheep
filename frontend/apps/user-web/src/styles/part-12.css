@@ -97,6 +97,7 @@
   }
 
   .shell-header {
+    display: flex;
     align-items: flex-start;
     flex-direction: column;
     padding: 16px;
@@ -108,7 +109,24 @@
   }
 
   .shell-brand {
+    width: 100%;
     min-height: auto;
+  }
+
+  .shell-sidebar-nav,
+  .shell-sidebar-nav-grid,
+  .shell-nav-actions {
+    width: 100%;
+  }
+
+  .shell-sidebar-nav-grid {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+
+  .shell-user {
+    max-width: 100%;
+    margin-left: 0;
   }
 
   .canvas-header {
@@ -129,11 +147,6 @@
 
   .notebook-canvas {
     padding: 28px 18px 88px;
-  }
-
-  .zoom-toolbar {
-    top: 10px;
-    right: 10px;
   }
 
   .node-detail-panel {

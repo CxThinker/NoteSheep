@@ -15,6 +15,7 @@ type NotebookSidebarProps = {
   isSubmitting: boolean;
   notebookScroll: PanelScrollbar;
   notebooks: NotebookEntry[];
+  onCollapseSidebar: () => void;
   onCreateNotebook: () => void;
   onDeleteNotebook: (name: string) => void;
   onOpenNodeDetail: (target: NodeDetailTarget) => void;
@@ -40,6 +41,7 @@ export function NotebookSidebar({
   isSubmitting,
   notebookScroll,
   notebooks,
+  onCollapseSidebar,
   onCreateNotebook,
   onDeleteNotebook,
   onOpenNodeDetail,
@@ -65,6 +67,7 @@ export function NotebookSidebar({
             deletedNotebooks={deletedNotebooks}
             disabled={isSubmitting}
             notebooks={notebooks}
+            onCollapseSidebar={onCollapseSidebar}
             onCreateNotebook={onCreateNotebook}
             onDeleteNotebook={onDeleteNotebook}
             onPermanentDeleteNotebook={onPermanentDeleteNotebook}
@@ -99,6 +102,7 @@ function NotebookList({
   deletedNotebooks,
   disabled,
   notebooks,
+  onCollapseSidebar,
   onCreateNotebook,
   onDeleteNotebook,
   onPermanentDeleteNotebook,
@@ -109,6 +113,7 @@ function NotebookList({
   deletedNotebooks: DeletedNotebookEntry[];
   disabled: boolean;
   notebooks: NotebookEntry[];
+  onCollapseSidebar: () => void;
   onCreateNotebook: () => void;
   onDeleteNotebook: (name: string) => void;
   onPermanentDeleteNotebook: (notebook: DeletedNotebookEntry) => void;
@@ -120,9 +125,14 @@ function NotebookList({
   const isActiveTab = activeNotebookTab === "active";
   return (
     <div className="notebook-sidebar-content">
-      <button className="create-notebook-button" onClick={onCreateNotebook} type="button">
-        {messages.shell.openCreateNotebook}
-      </button>
+      <div className="notebook-action-row">
+        <button className="create-notebook-button" onClick={onCreateNotebook} type="button">
+          {messages.shell.openCreateNotebook}
+        </button>
+        <button aria-label={messages.shell.collapseSidebar} className="sidebar-collapse-button" onClick={onCollapseSidebar} type="button">
+          &lt;
+        </button>
+      </div>
       <div aria-label={messages.shell.notebookTabs} className="notebook-tabs" role="tablist">
         <NotebookTabButton active={isActiveTab} label={messages.shell.notebooks} onClick={() => setActiveNotebookTab("active")} />
         <NotebookTabButton active={!isActiveTab} label={messages.shell.deletedNotebooks} onClick={() => setActiveNotebookTab("deleted")} />

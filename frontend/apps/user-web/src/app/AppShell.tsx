@@ -5,6 +5,7 @@ import { LanguageCode, NeonTextColorName, ThemeName } from "@notesheep/ui";
 
 import { DropTarget } from "../mindMapCanvasTypes";
 import { messages } from "../messages";
+import { CollapsedSidebarRail } from "./CollapsedSidebarRail";
 import { NotebookSidebar } from "./NotebookSidebar";
 import { NodeTrayTab } from "./NodeTray";
 import { SettingsDialog } from "./SettingsDialog";
@@ -13,6 +14,8 @@ import { useWorkspaceController } from "./useWorkspaceController";
 import { useWorkspaceZoom } from "./useWorkspaceZoom";
 import { WorkspaceCanvas } from "./WorkspaceCanvas";
 import { WorkspaceDialogs } from "./WorkspaceDialogs";
+import { UserBadge } from "./UserBadge";
+import { ZoomToolbar } from "./ZoomToolbar";
 
 type AppShellProps = ReturnType<typeof useWorkspaceController> & {
   language: LanguageCode;
@@ -55,6 +58,7 @@ export function AppShell(props: AppShellProps) {
     workspaceError,
   } = props;
   const [activeTrayTab, setActiveTrayTab] = useState<NodeTrayTab>("free");
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedTrayNodeId, setSelectedTrayNodeId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [trayDropTarget, setTrayDropTarget] = useState<DropTarget | null>(null);
@@ -83,40 +87,54 @@ export function AppShell(props: AppShellProps) {
   return (
     <main className="shell-page">
       <header className="shell-header">
-        <div className="shell-brand">
-          <h1>{messages.appName}</h1>
-          <span>{user.username}</span>
+        <div className="shell-sidebar-nav">
+          <div className="shell-sidebar-nav-grid">
+            <div className="shell-brand">
+              <h1>{messages.appName}</h1>
+            </div>
+          </div>
         </div>
-        <button className="text-action" onClick={onLogout} type="button">
-          {messages.shell.logout}
-        </button>
-        <button aria-label={messages.settings.open} className="settings-button" onClick={() => setSettingsOpen(true)} type="button">
-          ⚙
-        </button>
+        <UserBadge username={user.username} />
+        <div className="shell-nav-actions">
+          <ZoomToolbar onZoom={zoom.updateWorkspaceZoom} onZoomReset={zoom.resetWorkspaceZoom} workspaceZoom={zoom.workspaceZoom} />
+          <button aria-label={messages.settings.open} className="settings-button" onClick={() => setSettingsOpen(true)} type="button">
+            {messages.settings.title}
+          </button>
+          <button className="text-action" onClick={onLogout} type="button">
+            {messages.shell.logout}
+          </button>
+        </div>
       </header>
-      <section className="workspace-frame" aria-label={messages.shell.workspace}>
-        <NotebookSidebar
-          activeTrayTab={activeTrayTab}
-          deletedNotebooks={deletedNotebooks}
-          isSubmitting={isWorkspaceSubmitting}
-          notebookScroll={notebookScroll}
-          notebooks={notebooks}
-          onCreateNotebook={onOpenNotebookDialog}
-          onDeleteNotebook={onDeleteNotebook}
-          onOpenNodeDetail={onOpenNodeDetail}
-          onDropTargetPreview={handleDropTargetPreview}
-          onPermanentDeleteNode={onPermanentDeleteNode}
-          onPermanentDeleteNotebook={onPermanentDeleteNotebook}
-          onPlaceTrayNode={handlePlaceTrayNode}
-          onRestoreNotebook={onRestoreNotebook}
-          onSelectNotebook={onSelectNotebook}
-          onSelectTrayNode={setSelectedTrayNodeId}
-          onTrayTabChange={setActiveTrayTab}
-          selectedNotebookName={selectedNotebookName}
-          selectedTrayNodeId={selectedTrayNodeId}
-          trayScroll={trayScroll}
-          tree={tree}
-        />
+      <section className="workspace-frame" aria-label={messages.shell.workspace} data-sidebar-collapsed={isSidebarCollapsed}>
+        {isSidebarCollapsed ? (
+          <CollapsedSidebarRail onExpand={() => setSidebarCollapsed(false)} />
+        ) : (
+          <div className="workspace-sidebar-panel">
+            <NotebookSidebar
+              activeTrayTab={activeTrayTab}
+              deletedNotebooks={deletedNotebooks}
+              isSubmitting={isWorkspaceSubmitting}
+              notebookScroll={notebookScroll}
+              notebooks={notebooks}
+              onCollapseSidebar={collapseSidebar}
+              onCreateNotebook={onOpenNotebookDialog}
+              onDeleteNotebook={onDeleteNotebook}
+              onOpenNodeDetail={onOpenNodeDetail}
+              onDropTargetPreview={handleDropTargetPreview}
+              onPermanentDeleteNode={onPermanentDeleteNode}
+              onPermanentDeleteNotebook={onPermanentDeleteNotebook}
+              onPlaceTrayNode={handlePlaceTrayNode}
+              onRestoreNotebook={onRestoreNotebook}
+              onSelectNotebook={onSelectNotebook}
+              onSelectTrayNode={setSelectedTrayNodeId}
+              onTrayTabChange={setActiveTrayTab}
+              selectedNotebookName={selectedNotebookName}
+              selectedTrayNodeId={selectedTrayNodeId}
+              trayScroll={trayScroll}
+              tree={tree}
+            />
+          </div>
+        )}
         <WorkspaceCanvas
           isSubmitting={isWorkspaceSubmitting}
           onOpenNodeDetail={onOpenNodeDetail}
@@ -124,8 +142,6 @@ export function AppShell(props: AppShellProps) {
           onPlaceTrayNode={handlePlaceTrayNode}
           onSoftDeleteNode={onSoftDeleteNode}
           onUpdateTree={onUpdateTree}
-          onZoom={zoom.updateWorkspaceZoom}
-          onZoomReset={zoom.resetWorkspaceZoom}
           selectedNotebookName={selectedNotebookName}
           selectedTrayNodeId={selectedTrayNodeId}
           trayDropTarget={trayDropTarget}
@@ -159,6 +175,12 @@ export function AppShell(props: AppShellProps) {
 
   function handleDropTargetPreview(target: DropTarget | null) {
     setTrayDropTarget((current) => (sameDropTarget(current, target) ? current : target));
+  }
+
+  function collapseSidebar() {
+    setSelectedTrayNodeId(null);
+    setTrayDropTarget(null);
+    setSidebarCollapsed(true);
   }
 }
 

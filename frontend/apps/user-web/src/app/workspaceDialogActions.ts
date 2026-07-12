@@ -18,6 +18,7 @@ type DialogActionContext = {
   setNodeDetailLoading: (value: boolean) => void;
   setNodeDetailTarget: (value: NodeDetailTarget | null) => void;
   clearPendingDelete: () => void;
+  clearPendingNotebookDelete: () => void;
   setSelectedNotebookName: (value: string) => void;
   setWorkspaceDialog: (value: WorkspaceDialog) => void;
   setWorkspaceError: (value: string) => void;
@@ -37,7 +38,7 @@ function closeDialog(context: DialogActionContext) {
   context.setWorkspaceDialog(null);
   context.setWorkspaceError("");
   context.setNodeDetailTarget(null);
-  context.clearPendingDelete();
+  clearPendingDeletes(context);
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.setNewNodeTextContent("");
@@ -53,7 +54,7 @@ function openNodeDialog(context: DialogActionContext, target: NodeCreateTarget |
   context.setNewNodeVoices([]);
   context.setNodeCreateTarget(target);
   context.setNodeDetailTarget(null);
-  context.clearPendingDelete();
+  clearPendingDeletes(context);
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -64,7 +65,7 @@ function openNodeDialog(context: DialogActionContext, target: NodeCreateTarget |
 function openNotebookDialog(context: DialogActionContext) {
   context.setNewNotebookName("");
   context.setNodeDetailTarget(null);
-  context.clearPendingDelete();
+  clearPendingDeletes(context);
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -76,7 +77,7 @@ function selectNotebook(context: DialogActionContext, name: string) {
   context.setSelectedNotebookName(name);
   context.setNodeCreateTarget(null);
   context.setNodeDetailTarget(null);
-  context.clearPendingDelete();
+  clearPendingDeletes(context);
   context.setNodeDetail(null);
   context.setNodeDetailLoading(false);
   context.nodeDetailRequestRef.current += 1;
@@ -85,13 +86,18 @@ function selectNotebook(context: DialogActionContext, name: string) {
 
 function openNodeDetail(context: DialogActionContext, target: NodeDetailTarget) {
   context.setNodeDetailTarget(target);
-  context.clearPendingDelete();
+  clearPendingDeletes(context);
   context.setWorkspaceDialog(target.kind === "notebook" ? "notebook-detail" : "node-detail");
   context.setWorkspaceError("");
   context.setNodeDetail(null);
   const requestId = context.nodeDetailRequestRef.current + 1;
   context.nodeDetailRequestRef.current = requestId;
   loadNodeDetail(context, target, requestId);
+}
+
+function clearPendingDeletes(context: DialogActionContext) {
+  context.clearPendingDelete();
+  context.clearPendingNotebookDelete();
 }
 
 function loadNodeDetail(context: DialogActionContext, target: NodeDetailTarget, requestId: number) {
