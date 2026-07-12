@@ -148,6 +148,7 @@ describe("Workspace shell", () => {
     fireEvent.click(await screen.findByRole("button", { name: "打开设置" }));
     expect(screen.getByRole("dialog", { name: "设置" })).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "界面语言" }));
     fireEvent.click(screen.getByRole("button", { name: "English" }));
 
     expect(localStorage.getItem("notesheep-language")).toBe("en-US");
@@ -155,6 +156,7 @@ describe("Workspace shell", () => {
     expect(screen.getByRole("dialog", { name: "Settings" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "Theme & font" }));
     fireEvent.click(screen.getByRole("button", { name: "Neon" }));
     fireEvent.click(screen.getByRole("button", { name: "Orange" }));
 
